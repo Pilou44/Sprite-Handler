@@ -12,7 +12,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun MainScreen() {
+fun MainScreen(
+    showSpriteCreation: () -> Unit,
+    showAnimCreation: () -> Unit,
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -23,7 +26,7 @@ fun MainScreen() {
             modifier = Modifier.weight(1f),
         ) {
             Button(
-                onClick = {},
+                onClick = showSpriteCreation,
             ) {
                 Text("Create sprite")
             }
@@ -33,7 +36,7 @@ fun MainScreen() {
             modifier = Modifier.weight(1f),
         ) {
             Button(
-                onClick = {},
+                onClick = showAnimCreation,
             ) {
                 Text("Create animation")
             }
