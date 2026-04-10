@@ -1,6 +1,7 @@
 [versions]
 androidx-lifecycle = "2.10.0"
 androidx-navigation = "2.9.2"
+compose-coil = "3.4.0"
 composeHotReload = "1.0.0"
 composeMultiplatform = "1.10.3"
 junit = "4.13.2"
@@ -25,6 +26,7 @@ compose-uiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-previ
 kotlinx-coroutinesSwing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
 androidx-navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "androidx-navigation" }
 compose-material-icons = { module = "org.jetbrains.compose.material:material-icons-extended", version.ref = "material-icons" }
+compose-coil = { module = "io.coil-kt.coil3:coil-compose", version.ref = "compose-coil" }
 
 [plugins]
 composeHotReload = { id = "org.jetbrains.compose.hot-reload", version.ref = "composeHotReload" }
