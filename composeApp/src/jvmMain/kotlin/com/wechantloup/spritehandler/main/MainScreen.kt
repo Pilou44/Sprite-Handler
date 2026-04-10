@@ -1,4 +1,4 @@
-package com.wechantloup.spritehandler
+package com.wechantloup.spritehandler.main
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
