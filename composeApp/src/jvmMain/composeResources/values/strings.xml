@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+    <string name="validate_btn_label">Validate</string>
+    <string name="cancel_btn_label">Cancel</string>
+
+    <string name="pick_color_dialog_title">Pick a color</string>
+    <string name="red_field_label">Red</string>
+    <string name="green_field_label">Green</string>
+    <string name="blue_field_label">Blue</string>
+</resources>

@@ -1,10 +1,22 @@
 package com.wechantloup.spritehandler.spriteCreation
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
+import com.wechantloup.spritehandler.composeElement.dialog.ClosedDialogState
+import com.wechantloup.spritehandler.composeElement.dialog.DialogState
+import com.wechantloup.spritehandler.composeElement.dialog.OpenedDialogState
 import com.wechantloup.spritehandler.spriteCreation.model.Image
 import javax.imageio.ImageIO
 import javax.swing.JFileChooser
@@ -15,6 +27,14 @@ import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
+import spritehandler.composeapp.generated.resources.Res
+import spritehandler.composeapp.generated.resources.blue_field_label
+import spritehandler.composeapp.generated.resources.cancel_btn_label
+import spritehandler.composeapp.generated.resources.green_field_label
+import spritehandler.composeapp.generated.resources.pick_color_dialog_title
+import spritehandler.composeapp.generated.resources.red_field_label
+import spritehandler.composeapp.generated.resources.validate_btn_label
 import java.io.File
 import kotlin.reflect.KClass
 
@@ -38,7 +58,63 @@ internal class SpriteCreationViewModel: ViewModel() {
             is SelectAllImagesIntent -> selectAllImages(true)
             is UnselectAllImagesIntent -> selectAllImages(false)
             is GeneratePaletteIntent -> setGeneratedPalette(intent.selected)
+            is ShowColorPickerIntent -> showColorPicker(intent.index)
         }
+    }
+
+    private fun showColorPicker(index: Int) {
+        val color = Color(stateFlow.value.palette[index])
+        var red by mutableStateOf((color.red * 255).toInt().toString())
+        var green by mutableStateOf((color.green * 255).toInt().toString())
+        var blue by mutableStateOf((color.blue * 255).toInt().toString())
+        val dialog = OpenedDialogState(
+            onDismiss = {
+                _stateFlow.value = stateFlow.value.copy(dialog = ClosedDialogState)
+            },
+            titleRes = Res.string.pick_color_dialog_title,
+            confirmButtonTextRes = Res.string.validate_btn_label,
+            cancelButtonTextRes = Res.string.cancel_btn_label,
+            body = @Composable {
+                Column {
+                    Row {
+                        Text(stringResource(Res.string.red_field_label))
+                        TextField(
+                            value = red,
+                            onValueChange = { if (it.all { c -> c.isDigit() }) red = it },
+                        )
+                    }
+                    Row {
+                        Text(stringResource(Res.string.green_field_label))
+                        TextField(
+                            value = green,
+                            onValueChange = { if (it.all { c -> c.isDigit() }) green = it },
+                        )
+                    }
+                    Row {
+                        Text(stringResource(Res.string.blue_field_label))
+                        TextField(
+                            value = blue,
+                            onValueChange = { if (it.all { c -> c.isDigit() }) blue = it },
+                        )
+                    }
+                }
+            },
+            onConfirmButtonClicked = {
+                val newColor = Color(
+                    red = red.toIntOrNull()?.coerceIn(0, 255) ?: 0,
+                    green = green.toIntOrNull()?.coerceIn(0, 255) ?: 0,
+                    blue = blue.toIntOrNull()?.coerceIn(0, 255) ?: 0,
+                    alpha = 255,
+                )
+                val palette = _stateFlow.value.palette.toMutableList()
+                palette[index] = newColor.value
+                _stateFlow.value = stateFlow.value.copy(
+                    palette = palette,
+                    dialog = ClosedDialogState,
+                )
+            },
+        )
+        _stateFlow.value = stateFlow.value.copy(dialog = dialog)
     }
 
     private fun setGeneratedPalette(generated: Boolean) {
@@ -48,9 +124,7 @@ internal class SpriteCreationViewModel: ViewModel() {
     private fun selectImage(name: String, selected: Boolean) {
         val images = stateFlow.value.images.toMutableList()
         val index = images.indexOfFirst { it.name == name }
-        var image = images.removeAt(index)
-        image = image.copy(isSelected = selected)
-        images.add(index, image)
+        images[index] = images[index].copy(isSelected = selected)
         _stateFlow.value = stateFlow.value.copy(
             images = images,
         )
@@ -134,6 +208,7 @@ internal data class SpriteCreationState(
     val images: List<Image> = emptyList(),
     val autoGeneratedPalette: Boolean = true,
     val palette: List<ULong> = initPalette(),
+    val dialog: DialogState = ClosedDialogState,
 ) {
     val selectedImageCount: Int
         get() = images.filter { it.isSelected }.size
@@ -160,3 +235,4 @@ internal data class SelectImageIntent(
 internal data class GeneratePaletteIntent(
     val selected: Boolean,
 ): SpriteCreationIntent
+internal data class ShowColorPickerIntent(val index: Int): SpriteCreationIntent
