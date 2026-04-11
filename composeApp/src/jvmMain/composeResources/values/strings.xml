@@ -10,4 +10,6 @@
 
     <string name="generate_btn_label">Generate</string>
     <string name="size_in_pixels_label">Size in pixels:</string>
+
+    <string name="creation_progress_dialog_title">Creation in progress</string>
 </resources>
