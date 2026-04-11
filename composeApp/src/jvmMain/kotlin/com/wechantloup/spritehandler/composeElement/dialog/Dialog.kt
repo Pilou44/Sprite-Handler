@@ -50,6 +50,7 @@ fun Dialog(
         canDismiss = state.canDismiss,
         onConfirmButtonClicked = state.onConfirmButtonClicked,
         onDismissButtonClicked = state.onCancelButtonClicked,
+        isConfirmButtonEnabled = state.isConfirmButtonEnabled,
     )
 }
 
@@ -115,6 +116,7 @@ fun Dialog(
     dismissButtonText: String? = null,
     onDismissButtonClicked: (() -> Unit)? = null,
     canDismiss: Boolean = true,
+    isConfirmButtonEnabled: Boolean = true,
 ) {
     Dialog(
         onDismissRequest = onDismissRequest,
@@ -189,6 +191,7 @@ fun Dialog(
                     if (confirmButtonText != null) {
                         TextButton(
                             onClick = onConfirmButtonClicked ?: onDismissRequest,
+                            enabled = isConfirmButtonEnabled
                         ) {
                             Text(
                                 confirmButtonText,

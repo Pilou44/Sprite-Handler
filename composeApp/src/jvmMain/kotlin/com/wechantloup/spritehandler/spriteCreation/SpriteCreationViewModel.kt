@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material.icons.filled.East
 import androidx.compose.material.icons.filled.North
@@ -19,7 +18,6 @@ import androidx.compose.material.icons.filled.SouthEast
 import androidx.compose.material.icons.filled.SouthWest
 import androidx.compose.material.icons.filled.West
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -30,6 +28,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -111,6 +110,7 @@ internal class SpriteCreationViewModel: ViewModel() {
                 launchSpriteGeneration()
                 closeDialog()
             },
+            canConfirm = { width.value > 0 && height.value > 0}
         )
         _stateFlow.value = stateFlow.value.copy(dialog = dialog)
     }
@@ -121,20 +121,28 @@ internal class SpriteCreationViewModel: ViewModel() {
         height: MutableIntState,
         modifier: Modifier = Modifier,
     ) {
+        var widthStr by remember { mutableStateOf(width.value.toString()) }
+        var heightStr by remember { mutableStateOf(height.value.toString()) }
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = modifier,
         ) {
             Text(stringResource(Res.string.size_in_pixels_label))
             TextField(
-                value = "${width.value}",
-                onValueChange = { if (it.all { c -> c.isDigit() }) width.value = it.toInt() },
+                value = widthStr,
+                onValueChange = {
+                    if (it.all { c -> c.isDigit() }) widthStr = it
+                    width.value = it.toIntOrNull() ?: 0
+                },
                 modifier = Modifier.weight(1f),
             )
             Text("x")
             TextField(
-                value = "${height.value}",
-                onValueChange = { if (it.all { c -> c.isDigit() }) height.value = it.toInt() },
+                value = heightStr,
+                onValueChange = {
+                    if (it.all { c -> c.isDigit() }) heightStr = it
+                    height.value = it.toIntOrNull() ?: 0
+                },
                 modifier = Modifier.weight(1f),
             )
         }

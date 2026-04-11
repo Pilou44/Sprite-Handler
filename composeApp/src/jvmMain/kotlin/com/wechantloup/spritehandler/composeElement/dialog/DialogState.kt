@@ -23,7 +23,11 @@ data class OpenedDialogState(
     val canDismiss: Boolean = true,
     val onConfirmButtonClicked: (() -> Unit)? = null,
     val onCancelButtonClicked: (() -> Unit)? = null,
+    val canConfirm: () -> Boolean = { true }
 ) : DialogState {
+    val isConfirmButtonEnabled: Boolean
+        get() = canConfirm()
+
     val displayTitle: String? @Composable get() = titleRes?.let {
         stringResource(
             resource = it,
