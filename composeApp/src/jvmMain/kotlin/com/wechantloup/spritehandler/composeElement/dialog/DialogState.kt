@@ -10,7 +10,7 @@ sealed interface DialogState
 data object ClosedDialogState : DialogState
 
 data class OpenedDialogState(
-    val onDismiss: (() -> Unit),
+    val onDismiss: () -> Unit,
     private val titleRes: StringResource? = null,
     private val titleArgs: List<Any> = emptyList(),
     private val confirmButtonTextRes: StringResource? = null,

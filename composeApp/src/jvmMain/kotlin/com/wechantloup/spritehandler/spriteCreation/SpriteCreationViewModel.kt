@@ -1,15 +1,40 @@
 package com.wechantloup.spritehandler.spriteCreation
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Circle
+import androidx.compose.material.icons.filled.East
+import androidx.compose.material.icons.filled.North
+import androidx.compose.material.icons.filled.NorthEast
+import androidx.compose.material.icons.filled.NorthWest
+import androidx.compose.material.icons.filled.South
+import androidx.compose.material.icons.filled.SouthEast
+import androidx.compose.material.icons.filled.SouthWest
+import androidx.compose.material.icons.filled.West
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableIntState
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -18,6 +43,7 @@ import com.wechantloup.spritehandler.composeElement.dialog.ClosedDialogState
 import com.wechantloup.spritehandler.composeElement.dialog.DialogState
 import com.wechantloup.spritehandler.composeElement.dialog.OpenedDialogState
 import com.wechantloup.spritehandler.spriteCreation.model.Image
+import com.wechantloup.spritehandler.spriteCreation.model.SpriteAlignment
 import javax.imageio.ImageIO
 import javax.swing.JFileChooser
 import javax.swing.SwingUtilities.invokeAndWait
@@ -34,6 +60,7 @@ import spritehandler.composeapp.generated.resources.cancel_btn_label
 import spritehandler.composeapp.generated.resources.green_field_label
 import spritehandler.composeapp.generated.resources.pick_color_dialog_title
 import spritehandler.composeapp.generated.resources.red_field_label
+import spritehandler.composeapp.generated.resources.size_in_pixels_label
 import spritehandler.composeapp.generated.resources.validate_btn_label
 import java.io.File
 import kotlin.reflect.KClass
@@ -59,7 +86,214 @@ internal class SpriteCreationViewModel: ViewModel() {
             is UnselectAllImagesIntent -> selectAllImages(false)
             is GeneratePaletteIntent -> setGeneratedPalette(intent.selected)
             is ShowColorPickerIntent -> showColorPicker(intent.index)
+            is GenerateSpriteIntent -> showGenerationDialog()
         }
+    }
+
+    private fun showGenerationDialog() {
+        val width = mutableIntStateOf(0)
+        val height = mutableIntStateOf(0)
+        val alignment = mutableStateOf(SpriteAlignment.CENTER)
+        val dialog = OpenedDialogState(
+            onDismiss = ::closeDialog,
+            titleRes = Res.string.pick_color_dialog_title,
+            confirmButtonTextRes = Res.string.validate_btn_label,
+            cancelButtonTextRes = Res.string.cancel_btn_label,
+            body = @Composable {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    SpriteSizeBlock(width, height)
+                    SpriteAlignmentBlock(alignment)
+                }
+            },
+            onConfirmButtonClicked = {
+                launchSpriteGeneration()
+                closeDialog()
+            },
+        )
+        _stateFlow.value = stateFlow.value.copy(dialog = dialog)
+    }
+
+    @Composable
+    private fun SpriteSizeBlock(
+        width: MutableIntState,
+        height: MutableIntState,
+        modifier: Modifier = Modifier,
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = modifier,
+        ) {
+            Text(stringResource(Res.string.size_in_pixels_label))
+            TextField(
+                value = "${width.value}",
+                onValueChange = { if (it.all { c -> c.isDigit() }) width.value = it.toInt() },
+                modifier = Modifier.weight(1f),
+            )
+            Text("x")
+            TextField(
+                value = "${height.value}",
+                onValueChange = { if (it.all { c -> c.isDigit() }) height.value = it.toInt() },
+                modifier = Modifier.weight(1f),
+            )
+        }
+    }
+
+    @Composable
+    private fun SpriteAlignmentBlock(
+        alignment: MutableState<SpriteAlignment>,
+        modifier: Modifier = Modifier,
+    ) {
+        Column(
+            modifier = modifier,
+        ) {
+            Row {
+                Button(
+                    onClick = { alignment.value = SpriteAlignment.TOP_LEFT },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (alignment.value == SpriteAlignment.TOP_LEFT) {
+                            Color.Blue
+                        } else {
+                            Color.Unspecified
+                        }
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.NorthWest,
+                        contentDescription = null,
+                    )
+                }
+                Button(
+                    onClick = { alignment.value = SpriteAlignment.TOP_CENTER },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (alignment.value == SpriteAlignment.TOP_CENTER) {
+                            Color.Blue
+                        } else {
+                            Color.Unspecified
+                        }
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.North,
+                        contentDescription = null,
+                    )
+                }
+                Button(
+                    onClick = { alignment.value = SpriteAlignment.TOP_RIGHT },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (alignment.value == SpriteAlignment.TOP_RIGHT) {
+                            Color.Blue
+                        } else {
+                            Color.Unspecified
+                        }
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.NorthEast,
+                        contentDescription = null,
+                    )
+                }
+            }
+            Row {
+                Button(
+                    onClick = { alignment.value = SpriteAlignment.CENTER_LEFT },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (alignment.value == SpriteAlignment.CENTER_LEFT) {
+                            Color.Blue
+                        } else {
+                            Color.Unspecified
+                        }
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.West,
+                        contentDescription = null,
+                    )
+                }
+                Button(
+                    onClick = { alignment.value = SpriteAlignment.CENTER },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (alignment.value == SpriteAlignment.CENTER) {
+                            Color.Blue
+                        } else {
+                            Color.Unspecified
+                        }
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Circle,
+                        contentDescription = null,
+                    )
+                }
+                Button(
+                    onClick = { alignment.value = SpriteAlignment.CENTER_RIGHT },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (alignment.value == SpriteAlignment.CENTER_RIGHT) {
+                            Color.Blue
+                        } else {
+                            Color.Unspecified
+                        }
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.East,
+                        contentDescription = null,
+                    )
+                }
+            }
+            Row {
+                Button(
+                    onClick = { alignment.value = SpriteAlignment.BOTTOM_LEFT },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (alignment.value == SpriteAlignment.BOTTOM_LEFT) {
+                            Color.Blue
+                        } else {
+                            Color.Unspecified
+                        }
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.SouthWest,
+                        contentDescription = null,
+                    )
+                }
+                Button(
+                    onClick = { alignment.value = SpriteAlignment.BOTTOM_CENTER },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (alignment.value == SpriteAlignment.BOTTOM_CENTER) {
+                            Color.Blue
+                        } else {
+                            Color.Unspecified
+                        }
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.South,
+                        contentDescription = null,
+                    )
+                }
+                Button(
+                    onClick = { alignment.value = SpriteAlignment.BOTTOM_RIGHT },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (alignment.value == SpriteAlignment.BOTTOM_RIGHT) {
+                            Color.Blue
+                        } else {
+                            Color.Unspecified
+                        }
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.SouthEast,
+                        contentDescription = null,
+                    )
+                }
+            }
+        }
+    }
+
+    private fun launchSpriteGeneration() {
+        // ToDo
     }
 
     private fun showColorPicker(index: Int) {
@@ -68,14 +302,14 @@ internal class SpriteCreationViewModel: ViewModel() {
         var green by mutableStateOf((color.green * 255).toInt().toString())
         var blue by mutableStateOf((color.blue * 255).toInt().toString())
         val dialog = OpenedDialogState(
-            onDismiss = {
-                _stateFlow.value = stateFlow.value.copy(dialog = ClosedDialogState)
-            },
+            onDismiss = ::closeDialog,
             titleRes = Res.string.pick_color_dialog_title,
             confirmButtonTextRes = Res.string.validate_btn_label,
             cancelButtonTextRes = Res.string.cancel_btn_label,
             body = @Composable {
-                Column {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ){
                     Row {
                         Text(stringResource(Res.string.red_field_label))
                         TextField(
@@ -97,6 +331,20 @@ internal class SpriteCreationViewModel: ViewModel() {
                             onValueChange = { if (it.all { c -> c.isDigit() }) blue = it },
                         )
                     }
+                    Box(
+                        Modifier
+                            .align(Alignment.CenterHorizontally)
+                            .padding(8.dp)
+                            .size(64.dp)
+                            .background(
+                                Color(
+                                    red = red.toIntOrNull()?.coerceIn(0, 255) ?: 0,
+                                    green = green.toIntOrNull()?.coerceIn(0, 255) ?: 0,
+                                    blue = blue.toIntOrNull()?.coerceIn(0, 255) ?: 0,
+                                    alpha = 255,
+                                )
+                            ),
+                    )
                 }
             },
             onConfirmButtonClicked = {
@@ -115,6 +363,10 @@ internal class SpriteCreationViewModel: ViewModel() {
             },
         )
         _stateFlow.value = stateFlow.value.copy(dialog = dialog)
+    }
+
+    private fun closeDialog() {
+        _stateFlow.value = stateFlow.value.copy(dialog = ClosedDialogState)
     }
 
     private fun setGeneratedPalette(generated: Boolean) {
@@ -228,6 +480,7 @@ internal sealed interface SpriteCreationIntent
 internal data object PickFolderIntent: SpriteCreationIntent
 internal data object SelectAllImagesIntent: SpriteCreationIntent
 internal data object UnselectAllImagesIntent: SpriteCreationIntent
+internal data object GenerateSpriteIntent: SpriteCreationIntent
 internal data class SelectImageIntent(
     val name: String,
     val selected: Boolean,

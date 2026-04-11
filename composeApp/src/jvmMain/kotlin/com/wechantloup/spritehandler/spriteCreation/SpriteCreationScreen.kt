@@ -39,6 +39,9 @@ import com.wechantloup.spritehandler.spriteCreation.model.Image
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
+import spritehandler.composeapp.generated.resources.Res
+import spritehandler.composeapp.generated.resources.generate_btn_label
 
 @Composable
 internal fun SpriteCreationScreen(
@@ -73,12 +76,29 @@ internal fun SpriteCreationScreen(
             TopAppBar(
                 title = { Text("Sprite creation") },
                 navigationIcon = {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                        contentDescription = "Retour",
-                        modifier = Modifier.clickable { back() }
-                    )
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clickable { back() },
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                            contentDescription = "Retour",
+                        )
+                    }
                 },
+                actions = {
+                    Row {
+                        Button(
+                            onClick = { sendIntent(GenerateSpriteIntent) }
+                        ) {
+                            Text(
+                                text = stringResource(Res.string.generate_btn_label)
+                            )
+                        }
+                    }
+                }
             )
         },
     ) { paddingValues ->
