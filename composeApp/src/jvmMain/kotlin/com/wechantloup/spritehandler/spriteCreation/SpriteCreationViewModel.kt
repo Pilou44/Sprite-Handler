@@ -48,6 +48,7 @@ import com.wechantloup.spritehandler.useCase.SpriteUseCase
 import javax.imageio.ImageIO
 import javax.swing.JFileChooser
 import javax.swing.SwingUtilities.invokeAndWait
+import javax.swing.filechooser.FileNameExtensionFilter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consumeEach
@@ -425,12 +426,18 @@ internal class SpriteCreationViewModel: ViewModel() {
             val chooser = JFileChooser().apply {
                 dialogTitle = "Sauvegarder le fichier"
                 fileSelectionMode = JFileChooser.FILES_ONLY
+                fileFilter = FileNameExtensionFilter("Sprite files (*.spr)", "spr")
             }
 
             val result = chooser.showSaveDialog(null)
 
             if (result == JFileChooser.APPROVE_OPTION) {
-                file = chooser.selectedFile
+                val selected = chooser.selectedFile
+                file = if (selected.extension.lowercase() == "spr") {
+                    selected
+                } else {
+                    File(selected.absolutePath + ".spr")
+                }
             }
         }
         return file
