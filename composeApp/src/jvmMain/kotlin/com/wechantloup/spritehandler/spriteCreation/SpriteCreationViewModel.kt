@@ -385,13 +385,16 @@ internal class SpriteCreationViewModel: ViewModel() {
             canDismiss = false,
             onDismiss = ::closeDialog,
             titleRes = Res.string.creation_progress_dialog_title,
-            messageRes = when(state.value) {
-                GenerationState.IDLE -> Res.string.creation_progress_waiting
-                GenerationState.CHECKING_PALETTE -> Res.string.creation_progress_checking_palette
-                GenerationState.GENERATING_IMAGES -> Res.string.creation_progress_generating_images
-                GenerationState.ENCODING -> Res.string.creation_progress_encoding
-                GenerationState.DONE -> Res.string.creation_progress_done
-                GenerationState.ERROR -> Res.string.creation_progress_error
+            body = {
+                val msgId = when(state.value) {
+                    GenerationState.IDLE -> Res.string.creation_progress_waiting
+                    GenerationState.CHECKING_PALETTE -> Res.string.creation_progress_checking_palette
+                    GenerationState.GENERATING_IMAGES -> Res.string.creation_progress_generating_images
+                    GenerationState.ENCODING -> Res.string.creation_progress_encoding
+                    GenerationState.DONE -> Res.string.creation_progress_done
+                    GenerationState.ERROR -> Res.string.creation_progress_error
+                }
+                Text(text = stringResource(msgId))
             },
             confirmButtonTextRes = Res.string.save_btn_label,
             cancelButtonTextRes = Res.string.cancel_btn_label,

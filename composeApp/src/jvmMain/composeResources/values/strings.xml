@@ -17,6 +17,6 @@
     <string name="creation_progress_checking_palette">Checking or creating palette...</string>
     <string name="creation_progress_generating_images">Generating images...</string>
     <string name="creation_progress_encoding">Encoding data...</string>
-    <string name="creation_progress_done">Don!</string>
+    <string name="creation_progress_done">Done!</string>
     <string name="creation_progress_error">An error occured.</string>
 </resources>
