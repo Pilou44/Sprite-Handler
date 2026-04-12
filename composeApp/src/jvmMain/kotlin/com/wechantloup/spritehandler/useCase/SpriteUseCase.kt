@@ -116,7 +116,7 @@ object SpriteUseCase {
     }
 
     private fun generatePalette(images: List<Image>): Palette {
-        logger.info("generatePalette")
+//        logger.info("generatePalette")
         val colors = mutableListOf(Color.Transparent.toArgb())
 
         images.forEach { image ->
@@ -130,23 +130,23 @@ object SpriteUseCase {
             for (i in 0 until image.width) {
                 for (j in 0 until image.height) {
                     val color = pixelMap[i, j]
-                    if (color.alpha > 0f && color.alpha < 1f) {
-                        logger.info("Semi-transparent at ($i,$j) : alpha=${color.alpha} color=$color")
-                    }
+//                    if (color.alpha > 0f && color.alpha < 1f) {
+//                        logger.info("Semi-transparent at ($i,$j) : alpha=${color.alpha} color=$color")
+//                    }
                     val argbColor = //if (color.alpha == 1f) {
                         color.toArgb()
 //                    } else {
 //                        Color.Transparent.value
 //                    }
                     if (!colors.contains(argbColor)) {
-                        logger.info("new color found $color")
+//                        logger.info("new color found $color")
                         colors.add(argbColor)
                     }
                 }
             }
         }
 
-        logger.info("${colors.size} color found")
+//        logger.info("${colors.size} color found")
         if (colors.size > 16) throw IllegalStateException("Too many colors")
 
         if (colors.size < 16) {
