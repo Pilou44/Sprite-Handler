@@ -173,7 +173,7 @@ private fun FolderDescriptionBlock(
 @Composable
 private fun PaletteBlock(
     generated: Boolean,
-    palette: List<ULong>,
+    palette: List<Int>,
     sendIntent: (SpriteCreationIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -198,7 +198,7 @@ private fun PaletteBlock(
 
 @Composable
 private fun ColorPalette(
-    palette: List<ULong>,
+    palette: List<Int>,
     sendIntent: (SpriteCreationIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -208,7 +208,7 @@ private fun ColorPalette(
     ) {
         for (i in 0 until 15) {
             ColorPicker(
-                colorValue = palette[i],
+                colorArgb = palette[i],
                 onClick = { sendIntent(ShowColorPickerIntent(i)) },
             )
         }
@@ -217,10 +217,10 @@ private fun ColorPalette(
 
 @Composable
 private fun ColorPicker(
-    colorValue: ULong,
+    colorArgb: Int,
     onClick: () -> Unit,
 ) {
-    val color = Color(colorValue)
+    val color = Color(colorArgb)
     Box(
         modifier = Modifier
             .size(24.dp)
