@@ -6,6 +6,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.toPixelMap
 import com.wechantloup.spritehandler.model.Image
 import com.wechantloup.spritehandler.model.Palette
+import com.wechantloup.spritehandler.model.Sprite
 import com.wechantloup.spritehandler.model.SpriteAlignment
 import java.io.File
 import java.util.logging.Logger
@@ -115,8 +116,25 @@ object SpriteUseCase {
         return bytes
     }
 
+    fun import(bytes: List<Byte>) {
+        val version = bytes[0].toInt()
+        when (version) {
+            0 -> importV0(bytes)
+            else -> throw IllegalStateException("Unknown sprite version")
+        }
+    }
+
+    private fun importV0(bytes: List<Byte>): Sprite {
+        val width = bytes[1].toInt()
+        val height = bytes[2].toInt()
+        val colors = (0 until 16).map { i ->
+            val byteColor = bytes.subList(3 + 4 * i, 7 + 4 * i)
+            byteColor.toInt()
+        }
+        val palette = Palette(colors)
+    }
+
     private fun generatePalette(images: List<Image>): Palette {
-//        logger.info("generatePalette")
         val colors = mutableListOf(Color.Transparent.toArgb())
 
         images.forEach { image ->
@@ -130,23 +148,14 @@ object SpriteUseCase {
             for (i in 0 until image.width) {
                 for (j in 0 until image.height) {
                     val color = pixelMap[i, j]
-//                    if (color.alpha > 0f && color.alpha < 1f) {
-//                        logger.info("Semi-transparent at ($i,$j) : alpha=${color.alpha} color=$color")
-//                    }
-                    val argbColor = //if (color.alpha == 1f) {
-                        color.toArgb()
-//                    } else {
-//                        Color.Transparent.value
-//                    }
+                    val argbColor = color.toArgb()
                     if (!colors.contains(argbColor)) {
-//                        logger.info("new color found $color")
                         colors.add(argbColor)
                     }
                 }
             }
         }
 
-//        logger.info("${colors.size} color found")
         if (colors.size > 16) throw IllegalStateException("Too many colors")
 
         if (colors.size < 16) {

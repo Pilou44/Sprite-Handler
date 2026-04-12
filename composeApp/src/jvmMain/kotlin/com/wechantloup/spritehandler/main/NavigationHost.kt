@@ -7,9 +7,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.wechantloup.spritehandler.animCreation.AnimCreationScreen
-import com.wechantloup.spritehandler.spriteCreation.SpriteCreationViewModel
+import com.wechantloup.spritehandler.animCreation.AnimationCreationScreen
+import com.wechantloup.spritehandler.animCreation.AnimationCreationViewModel
 import com.wechantloup.spritehandler.spriteCreation.SpriteCreationScreen
+import com.wechantloup.spritehandler.spriteCreation.SpriteCreationViewModel
 
 internal const val MAIN_SCREEN = "main_screen"
 internal const val SPRITE_CREATION_SCEEN = "sprite_creation_sceen"
@@ -35,7 +36,11 @@ internal fun NavigationHost(
             )
         }
         composable(ANIM_CREATION_SCREEN) {
-            AnimCreationScreen()
+            val viewModel = getAnimationCreationViewModel()
+            AnimationCreationScreen(
+                viewModel = viewModel,
+                back = navController::popBackStack,
+            )
         }
     }
 }
@@ -46,5 +51,14 @@ private fun getSpriteChooserViewModel(): SpriteCreationViewModel {
     return viewModel<SpriteCreationViewModel>(
         viewModelStoreOwner = owner,
         factory = SpriteCreationViewModel.Factory()
+    )
+}
+
+@Composable
+private fun getAnimationCreationViewModel(): AnimationCreationViewModel {
+    val owner = checkNotNull(LocalViewModelStoreOwner.current)
+    return viewModel<AnimationCreationViewModel>(
+        viewModelStoreOwner = owner,
+        factory = AnimationCreationViewModel.Factory()
     )
 }

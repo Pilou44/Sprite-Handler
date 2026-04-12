@@ -3,6 +3,7 @@
     <string name="validate_btn_label">Validate</string>
     <string name="cancel_btn_label">Cancel</string>
     <string name="save_btn_label">Save</string>
+    <string name="back_btn_label">Back</string>
 
     <string name="pick_color_dialog_title">Pick a color</string>
     <string name="red_field_label">Red</string>
@@ -19,4 +20,10 @@
     <string name="creation_progress_encoding">Encoding data...</string>
     <string name="creation_progress_done">Done!</string>
     <string name="creation_progress_error">An error occured.</string>
+
+    <string name="sprite_creation_screen_title">Sprite creation</string>
+    <string name="select_folder_btn_label">Pick a folder</string>
+
+    <string name="animation_creation_screen_title">Animation creation</string>
+    <string name="select_sprite_btn_label">Pick a sprite</string>
 </resources>

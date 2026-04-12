@@ -41,12 +41,15 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import spritehandler.composeapp.generated.resources.Res
+import spritehandler.composeapp.generated.resources.back_btn_label
 import spritehandler.composeapp.generated.resources.generate_btn_label
+import spritehandler.composeapp.generated.resources.select_folder_btn_label
+import spritehandler.composeapp.generated.resources.sprite_creation_screen_title
 
 @Composable
 internal fun SpriteCreationScreen(
-    back: () -> Unit,
     viewModel: SpriteCreationViewModel,
+    back: () -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
 
@@ -67,14 +70,14 @@ internal fun SpriteCreationScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun SpriteCreationScreen(
-    back: () -> Unit,
     state: SpriteCreationState,
     sendIntent: (SpriteCreationIntent) -> Unit,
+    back: () -> Unit,
 ) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Sprite creation") },
+                title = { Text(stringResource(Res.string.sprite_creation_screen_title)) },
                 navigationIcon = {
                     Box(
                         contentAlignment = Alignment.Center,
@@ -84,7 +87,7 @@ internal fun SpriteCreationScreen(
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                            contentDescription = "Retour",
+                            contentDescription = stringResource(Res.string.back_btn_label),
                         )
                     }
                 },
@@ -155,7 +158,7 @@ private fun PickFolderBlock(
         onClick = { sendIntent(PickFolderIntent) },
         modifier = modifier,
     ) {
-        Text("Sélectionner un dossier")
+        Text(stringResource(Res.string.select_folder_btn_label))
     }
 }
 
