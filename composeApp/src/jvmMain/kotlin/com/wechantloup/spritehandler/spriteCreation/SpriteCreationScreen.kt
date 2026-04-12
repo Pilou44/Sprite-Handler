@@ -35,7 +35,7 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.wechantloup.spritehandler.composeElement.dialog.Dialog
 import com.wechantloup.spritehandler.composeElement.dialog.OpenedDialogState
-import com.wechantloup.spritehandler.spriteCreation.model.Image
+import com.wechantloup.spritehandler.model.Image
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch

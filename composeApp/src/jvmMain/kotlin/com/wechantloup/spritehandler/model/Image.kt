@@ -1,4 +1,4 @@
-package com.wechantloup.spritehandler.spriteCreation.model
+package com.wechantloup.spritehandler.model
 
 data class Image(
     val name: String,

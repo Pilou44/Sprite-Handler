@@ -2,6 +2,7 @@
 <resources>
     <string name="validate_btn_label">Validate</string>
     <string name="cancel_btn_label">Cancel</string>
+    <string name="save_btn_label">Save</string>
 
     <string name="pick_color_dialog_title">Pick a color</string>
     <string name="red_field_label">Red</string>
@@ -12,4 +13,10 @@
     <string name="size_in_pixels_label">Size in pixels:</string>
 
     <string name="creation_progress_dialog_title">Creation in progress</string>
+    <string name="creation_progress_waiting">Waiting...</string>
+    <string name="creation_progress_checking_palette">Checking or creating palette...</string>
+    <string name="creation_progress_generating_images">Generating images...</string>
+    <string name="creation_progress_encoding">Encoding data...</string>
+    <string name="creation_progress_done">Don!</string>
+    <string name="creation_progress_error">An error occured.</string>
 </resources>
