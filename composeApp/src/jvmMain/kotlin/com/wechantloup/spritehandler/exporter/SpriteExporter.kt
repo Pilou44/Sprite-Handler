@@ -7,7 +7,7 @@ object SpriteExporter {
     fun export(sprite: Sprite): List<Byte> {
         val bytes = mutableListOf<Byte>()
 
-        bytes.add(0.toByte())
+        bytes.add(0.toByte()) // Version 0
 
         bytes.add(sprite.width.toByte())
         bytes.add(sprite.height.toByte())
