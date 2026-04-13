@@ -38,9 +38,9 @@ class SpriteImporterTest {
         val width = 13
         val height = 13
 
-        val frame1 = List(width * height) { Random(seed = 42).nextInt(0, 16) }
-        val frame2 = List(width * height) { Random(seed = 24).nextInt(0, 16) }
-        val frame3 = List(width * height) { Random(seed = 13).nextInt(0, 16) }
+        val frame1 = Random(seed = 42).let { r -> List(width * height) { r.nextInt(0, 16) } }
+        val frame2 = Random(seed = 24).let { r -> List(width * height) { r.nextInt(0, 16) } }
+        val frame3 = Random(seed = 24).let { r -> List(width * height) { r.nextInt(0, 16) } }
         val frames = listOf(frame1, frame2, frame3)
 
         val sourceSprite = Sprite(
