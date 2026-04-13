@@ -20,10 +20,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -35,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.wechantloup.spritehandler.composeElement.dialog.Dialog
 import com.wechantloup.spritehandler.composeElement.dialog.OpenedDialogState
+import com.wechantloup.spritehandler.composeElement.dialog.TopAppBar
 import com.wechantloup.spritehandler.model.Image
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
@@ -77,29 +76,17 @@ internal fun SpriteCreationScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(Res.string.sprite_creation_screen_title)) },
-                navigationIcon = {
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier
-                            .size(40.dp)
-                            .clickable { back() },
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                            contentDescription = stringResource(Res.string.back_btn_label),
-                        )
-                    }
-                },
+                titleRes = Res.string.sprite_creation_screen_title,
+                navigationIcon = Icons.AutoMirrored.Default.ArrowBack,
+                navigationIconDescriptionRes = Res.string.back_btn_label,
+                onNavigationPressed = back,
                 actions = {
-                    Row {
-                        Button(
-                            onClick = { sendIntent(GenerateSpriteIntent) }
-                        ) {
-                            Text(
-                                text = stringResource(Res.string.generate_btn_label)
-                            )
-                        }
+                    Button(
+                        onClick = { sendIntent(GenerateSpriteIntent) }
+                    ) {
+                        Text(
+                            text = stringResource(Res.string.generate_btn_label)
+                        )
                     }
                 }
             )
