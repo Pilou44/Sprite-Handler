@@ -41,7 +41,9 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.wechantloup.spritehandler.composeElement.dialog.ClosedDialogState
 import com.wechantloup.spritehandler.composeElement.dialog.OpenedDialogState
+import com.wechantloup.spritehandler.exporter.SpriteExporter
 import com.wechantloup.spritehandler.model.Image
+import com.wechantloup.spritehandler.model.Sprite
 import com.wechantloup.spritehandler.model.SpriteAlignment
 import com.wechantloup.spritehandler.useCase.SpriteUseCase
 import javax.imageio.ImageIO
@@ -347,7 +349,7 @@ internal class SpriteCreationViewModel: ViewModel() {
 
             logger.severe("Generate images")
             state.value = GenerationState.GENERATING_IMAGES
-            val pixelColors = try {
+            val frames = try {
                 SpriteUseCase.generateSprite(
                     images = images,
                     palette = palette,
@@ -363,14 +365,14 @@ internal class SpriteCreationViewModel: ViewModel() {
 
             logger.severe("Encode")
             state.value = GenerationState.ENCODING
+            val sprite = Sprite(
+                width = width,
+                height = height,
+                palette = palette,
+                frames = frames,
+            )
             bytes.value = try {
-                SpriteUseCase.encode(
-                    width = width,
-                    height = height,
-                    palette = palette,
-                    imageCount = images.size,
-                    pixelColors = pixelColors,
-                )
+                SpriteExporter.export(sprite)
             } catch (e: Exception) {
                 logger.severe("Error encoding information: ${e.printStackTrace()}")
                 state.value = GenerationState.ERROR

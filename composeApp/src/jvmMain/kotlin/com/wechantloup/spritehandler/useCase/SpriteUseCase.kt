@@ -32,10 +32,10 @@ object SpriteUseCase {
         width: Int,
         height: Int,
         alignment: SpriteAlignment,
-    ): List<Int> {
+    ): List<List<Int>> {
         val images = images.filter { it.isSelected }
 
-        val pixels: List<Int> = images.flatMap { image ->
+        val pixels: List<List<Int>> = images.map { image ->
             val bitmap = File(image.path)
                 .inputStream()
                 .readAllBytes()
@@ -84,54 +84,6 @@ object SpriteUseCase {
         }
 
         return pixels
-    }
-
-    fun encode(
-        width: Int,
-        height: Int,
-        palette: Palette,
-        imageCount: Int,
-        pixelColors: List<Int>,
-    ): List<Byte> {
-        val bytes = mutableListOf<Byte>()
-
-        bytes.add(0.toByte())
-
-        if (width > 255) throw IllegalStateException("width must be 255 or less")
-        bytes.add(width.toByte())
-        if (height > 255) throw IllegalStateException("height must be 255 or less")
-        bytes.add(height.toByte())
-
-        palette.colors.forEach { color ->
-            val colorBytes = color.toBytes()
-            bytes.addAll(colorBytes)
-        }
-
-        if (imageCount > 255) throw IllegalStateException("Can't have more than 255 images")
-        bytes.add(imageCount.toByte())
-
-        val pixelBytes = pixelColors.toPackedBytes()
-        bytes.addAll(pixelBytes)
-
-        return bytes
-    }
-
-    fun import(bytes: List<Byte>) {
-        val version = bytes[0].toInt()
-        when (version) {
-            0 -> importV0(bytes)
-            else -> throw IllegalStateException("Unknown sprite version")
-        }
-    }
-
-    private fun importV0(bytes: List<Byte>): Sprite {
-        val width = bytes[1].toInt()
-        val height = bytes[2].toInt()
-        val colors = (0 until 16).map { i ->
-            val byteColor = bytes.subList(3 + 4 * i, 7 + 4 * i)
-            byteColor.toInt()
-        }
-        val palette = Palette(colors)
     }
 
     private fun generatePalette(images: List<Image>): Palette {
@@ -193,24 +145,4 @@ object SpriteUseCase {
         }
         return Palette(colors)
     }
-
-    private fun Int.toBytes(): List<Byte> = (3 downTo 0).map { i ->
-        ((this shr (i * 8)) and 0xFF).toByte()
-    }
-
-    private fun List<Byte>.toInt(): Int = fold(0) { acc, byte ->
-        (acc shl 8) or (byte.toInt() and 0xFF)
-    }
-
-    private fun List<Int>.toPackedBytes(): List<Byte> = chunked(2).map { chunk ->
-        val high = chunk[0] and 0xF
-        val low = if (chunk.size == 2) chunk[1] and 0xF else 0
-        ((high shl 4) or low).toByte()
-    }
-
-    private fun List<Byte>.toNibbles(originalSize: Int): List<Int> = flatMap { byte ->
-        val high = (byte.toInt() shr 4) and 0xF
-        val low = byte.toInt() and 0xF
-        listOf(high, low)
-    }.take(originalSize)
 }
