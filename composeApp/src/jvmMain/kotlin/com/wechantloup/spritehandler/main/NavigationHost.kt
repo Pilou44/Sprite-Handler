@@ -25,7 +25,7 @@ internal fun NavigationHost(
         composable(MAIN_SCREEN) {
             MainScreen(
                 showSpriteCreation = { navController.navigate(SPRITE_CREATION_SCEEN) },
-                showAnimCreation = {},
+                showAnimCreation = { navController.navigate(ANIM_CREATION_SCREEN) },
             )
         }
         composable(SPRITE_CREATION_SCEEN) {

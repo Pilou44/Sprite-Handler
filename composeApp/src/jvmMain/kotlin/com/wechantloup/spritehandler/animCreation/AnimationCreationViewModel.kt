@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.wechantloup.spritehandler.importer.SpriteImporter
-import com.wechantloup.spritehandler.useCase.SpriteUseCase
 import javax.swing.JFileChooser
 import javax.swing.SwingUtilities.invokeAndWait
 import javax.swing.filechooser.FileNameExtensionFilter
@@ -63,7 +62,9 @@ internal class AnimationCreationViewModel: ViewModel() {
     private fun loadSprite(file: File) {
         val bytes = file.readBytes().toList()
         val sprite = SpriteImporter.import(bytes)
-        // ToDo
+        _stateFlow.value = stateFlow.value.copy(
+            sprite = sprite,
+        )
     }
 
     internal class Factory : ViewModelProvider.Factory {
