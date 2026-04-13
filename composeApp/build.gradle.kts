@@ -30,6 +30,10 @@ kotlin {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
         }
+        jvmTest.dependencies {
+//            implementation(kotlin("test"))
+            // ex: implementation("io.mockk:mockk:1.13.x")
+        }
     }
 }
 
