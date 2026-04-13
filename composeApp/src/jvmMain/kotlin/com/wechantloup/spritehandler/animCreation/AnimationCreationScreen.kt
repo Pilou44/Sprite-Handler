@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wechantloup.spritehandler.composeElement.dialog.TopAppBar
+import com.wechantloup.spritehandler.model.Animation
 import com.wechantloup.spritehandler.model.Palette
 import com.wechantloup.spritehandler.model.Sprite
 import kotlinx.coroutines.CoroutineScope
@@ -101,6 +102,8 @@ private fun AnimationCreationScreen(
             ) {
                 PickSpriteBlock(sendIntent = sendIntent)
 
+                if (state.sprite == null) return@Column
+
                 Row(
                     modifier = Modifier.fillMaxSize(),
                 ) {
@@ -111,6 +114,7 @@ private fun AnimationCreationScreen(
 
                     AnimationBlock(
                         state.animation,
+                        sendIntent = sendIntent,
                         modifier = Modifier.weight(1f),
                     )
                 }
@@ -121,22 +125,60 @@ private fun AnimationCreationScreen(
 
 @Composable
 private fun AnimationBlock(
-    animation: Unit?,
+    animation: Animation,
+    sendIntent: (AnimationCreationIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val verticalPadding = 8.dp
+    LazyColumn(
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(verticalPadding),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier,
+    ) {
+        items(
+            count = animation.frames.size
+        ) { index ->
+            Column(
+                verticalArrangement = Arrangement.spacedBy(verticalPadding),
+            ) {
+                AddFrameButton { sendIntent(AddAnimationFrameIntent(index)) }
+                AnimationFrame(animation.frames[index])
+            }
+        }
+        item {
+            AddFrameButton { sendIntent(AddAnimationFrameIntent(animation.frames.size)) }
+        }
+    }
+}
 
+@Composable
+private fun AnimationFrame(
+    frame: Animation.Frame,
+) {
+    // ToDo
+}
+
+@Composable
+private fun AddFrameButton(
+    onClick: () -> Unit,
+) {
+    Button(
+        onClick = onClick,
+    ) {
+        Text("+")
+    }
 }
 
 @Composable
 private fun SpriteBlock(
-    sprite: Sprite?,
+    sprite: Sprite,
     modifier: Modifier = Modifier,
 ) {
-    if (sprite == null) return
-
     LazyColumn(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier,
     ) {
         items(

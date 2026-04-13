@@ -35,8 +35,9 @@ internal class AnimationCreationViewModel: ViewModel() {
 
     private fun handleIntent(intent: AnimationCreationIntent) {
         when (intent) {
-            GenerateAnimationIntent -> TODO()
-            PickSpriteIntent -> pickSprite()
+            is GenerateAnimationIntent -> TODO()
+            is PickSpriteIntent -> pickSprite()
+            is AddAnimationFrameIntent -> TODO()
         }
     }
 
