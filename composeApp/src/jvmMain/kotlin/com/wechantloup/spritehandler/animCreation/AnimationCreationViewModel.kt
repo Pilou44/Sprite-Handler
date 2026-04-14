@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.wechantloup.spritehandler.importer.SpriteImporter
+import com.wechantloup.spritehandler.model.Animation.Frame
 import javax.swing.JFileChooser
 import javax.swing.SwingUtilities.invokeAndWait
 import javax.swing.filechooser.FileNameExtensionFilter
@@ -37,8 +38,50 @@ internal class AnimationCreationViewModel: ViewModel() {
         when (intent) {
             is GenerateAnimationIntent -> TODO()
             is PickSpriteIntent -> pickSprite()
-            is AddAnimationFrameIntent -> TODO()
+            is AddAnimationFrameIntent -> addAnimationFrame(intent.index)
+            is SetHorizontalOffsetIntent -> setFramePadding(intent.animationIndex, incX = intent.increment)
+            is SetVerticalOffsetIntent -> setFramePadding(intent.animationIndex, incY = intent.increment)
+            is SetSpriteFrameIntent -> setSpriteFrame(intent.animationIndex, intent.spriteFrameIndex)
         }
+    }
+
+    private fun addAnimationFrame(index: Int) {
+        val animation = stateFlow.value.animation
+        val frames = animation.frames.toMutableList()
+        frames.add(index, Frame(0, 0, 0))
+        val newAnimation = animation.copy(frames = frames)
+        _stateFlow.value = stateFlow.value.copy(
+            animation = newAnimation
+        )
+    }
+
+    private fun setFramePadding(index: Int, incX: Int = 0, incY: Int = 0) {
+        val animation = stateFlow.value.animation
+        val frames = animation.frames.toMutableList()
+        val frame = frames.removeAt(index)
+        val newFrame = frame.copy(
+            offsetX = frame.offsetX + incX,
+            offsetY = frame.offsetY + incY,
+        )
+        frames.add(index, newFrame)
+        val newAnimation = animation.copy(frames = frames)
+        _stateFlow.value = stateFlow.value.copy(
+            animation = newAnimation
+        )
+    }
+
+    private fun setSpriteFrame(index: Int, spriteIndex: Int) {
+        val animation = stateFlow.value.animation
+        val frames = animation.frames.toMutableList()
+        val frame = frames.removeAt(index)
+        val newFrame = frame.copy(
+            spriteFrameIndex = spriteIndex,
+        )
+        frames.add(index, newFrame)
+        val newAnimation = animation.copy(frames = frames)
+        _stateFlow.value = stateFlow.value.copy(
+            animation = newAnimation
+        )
     }
 
     private fun pickSprite() {

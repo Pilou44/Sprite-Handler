@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -18,16 +19,22 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.wechantloup.spritehandler.composeElement.dialog.TopAppBar
 import com.wechantloup.spritehandler.model.Animation
 import com.wechantloup.spritehandler.model.Palette
@@ -38,6 +45,9 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import spritehandler.composeapp.generated.resources.Res
 import spritehandler.composeapp.generated.resources.animation_creation_screen_title
+import spritehandler.composeapp.generated.resources.animation_horizontal_offset_label
+import spritehandler.composeapp.generated.resources.animation_sprite_frame_index_label
+import spritehandler.composeapp.generated.resources.animation_vertical_offset_label
 import spritehandler.composeapp.generated.resources.back_btn_label
 import spritehandler.composeapp.generated.resources.generate_btn_label
 import spritehandler.composeapp.generated.resources.select_sprite_btn_label
@@ -108,12 +118,13 @@ private fun AnimationCreationScreen(
                     modifier = Modifier.fillMaxSize(),
                 ) {
                     SpriteBlock(
-                        state.sprite,
-                        modifier = Modifier.weight(1f),
+                        sprite = state.sprite,
+                        modifier = Modifier.weight(0.5f),
                     )
 
                     AnimationBlock(
-                        state.animation,
+                        animation = state.animation,
+                        sprite = state.sprite,
                         sendIntent = sendIntent,
                         modifier = Modifier.weight(1f),
                     )
@@ -126,12 +137,13 @@ private fun AnimationCreationScreen(
 @Composable
 private fun AnimationBlock(
     animation: Animation,
+    sprite: Sprite,
     sendIntent: (AnimationCreationIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val verticalPadding = 8.dp
     LazyColumn(
-        contentPadding = PaddingValues(16.dp),
+        contentPadding = PaddingValues(vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(verticalPadding),
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier,
@@ -140,10 +152,16 @@ private fun AnimationBlock(
             count = animation.frames.size
         ) { index ->
             Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(verticalPadding),
             ) {
                 AddFrameButton { sendIntent(AddAnimationFrameIntent(index)) }
-                AnimationFrame(animation.frames[index])
+                AnimationFrame(
+                    frame = animation.frames[index],
+                    index = index,
+                    sprite = sprite,
+                    sendIntent = sendIntent,
+                )
             }
         }
         item {
@@ -155,8 +173,125 @@ private fun AnimationBlock(
 @Composable
 private fun AnimationFrame(
     frame: Animation.Frame,
+    index: Int,
+    sprite: Sprite,
+    sendIntent: (AnimationCreationIntent) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    // ToDo
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = modifier,
+    ) {
+        Column(
+            modifier = Modifier.weight(1f),
+        ) {
+            Text(stringResource(Res.string.animation_sprite_frame_index_label))
+
+            var frameIndexStr by remember { mutableStateOf(frame.spriteFrameIndex.toString()) }
+            TextField(
+                value = frameIndexStr,
+                onValueChange = {
+                    if (it.all { c -> c.isDigit() }) frameIndexStr = it
+                    val frameIndex = frameIndexStr.toIntOrNull()?.coerceIn(0, 255)
+                    frameIndex?.let { sendIntent(SetSpriteFrameIntent(index, frameIndex)) }
+                }
+            )
+        }
+        Column(
+            modifier = Modifier.weight(1f),
+        ) {
+            Text(
+                text = stringResource(Res.string.animation_horizontal_offset_label),
+                fontSize = 12.sp,
+            )
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Button(
+                    onClick = { sendIntent(SetHorizontalOffsetIntent(index, -1)) },
+                    contentPadding = PaddingValues(2.dp),
+                    modifier = Modifier.defaultMinSize(minWidth = 1.dp, minHeight = 1.dp),
+                ) {
+                    Text("-1")
+                }
+                Text(
+                    text = frame.offsetX.toString(),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.width(48.dp),
+                )
+                Button(
+                    onClick = { sendIntent(SetHorizontalOffsetIntent(index, 1)) },
+                    contentPadding = PaddingValues(2.dp),
+                    modifier = Modifier.defaultMinSize(minWidth = 1.dp, minHeight = 1.dp),
+                ) {
+                    Text("+1")
+                }
+            }
+        }
+        Column(
+            modifier = Modifier.weight(1f),
+        ) {
+            Text(
+                text = stringResource(Res.string.animation_vertical_offset_label),
+                fontSize = 12.sp,
+            )
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Button(
+                    onClick = { sendIntent(SetVerticalOffsetIntent(index, -1)) },
+                    contentPadding = PaddingValues(2.dp),
+                    modifier = Modifier.defaultMinSize(minWidth = 1.dp, minHeight = 1.dp),
+                ) {
+                    Text("-1")
+                }
+                Text(
+                    text = frame.offsetX.toString(),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.width(48.dp),
+                )
+                Button(
+                    onClick = { sendIntent(SetVerticalOffsetIntent(index, 1)) },
+                    contentPadding = PaddingValues(2.dp),
+                    modifier = Modifier.defaultMinSize(minWidth = 1.dp, minHeight = 1.dp),
+                ) {
+                    Text("+1")
+                }
+            }
+        }
+        FramePreview(
+            frame,
+            sprite,
+            modifier = Modifier.weight(1f),
+        )
+    }
+}
+
+@Composable
+private fun FramePreview(
+    frame: Animation.Frame,
+    sprite: Sprite,
+    modifier: Modifier = Modifier,
+) {
+    val spriteFrame = sprite.frames[frame.spriteFrameIndex]
+    val pixels = applyOffset(
+        frame = spriteFrame,
+        width = sprite.width,
+        height = sprite.height,
+        offsetX = frame.offsetX,
+        offsetY = frame.offsetY,
+    )
+    SpriteFrame(
+        frame = pixels,
+        palette = sprite.palette,
+        width = sprite.width,
+        height = sprite.height,
+        spotSize = 2.dp,
+        modifier = modifier,
+    )
 }
 
 @Composable
@@ -176,7 +311,7 @@ private fun SpriteBlock(
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(
-        contentPadding = PaddingValues(16.dp),
+        contentPadding = PaddingValues(vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier,
@@ -251,3 +386,22 @@ private fun PickSpriteBlock(
 private fun Channel<AnimationCreationIntent>.sendIntent(scope: CoroutineScope, intent: AnimationCreationIntent) {
     scope.launch { send(intent) }
 }
+
+private fun applyOffset(
+    frame: List<Int>,
+    width: Int,
+    height: Int,
+    offsetX: Int,
+    offsetY: Int,
+): List<Int> = List(width * height) { index ->
+    val destX = index % width
+    val destY = index / width
+    val srcX = destX - offsetX
+    val srcY = destY - offsetY
+    if (srcX in 0 until width && srcY in 0 until height) {
+        frame[srcY * width + srcX]
+    } else {
+        0
+    }
+}
+

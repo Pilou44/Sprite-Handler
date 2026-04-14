@@ -26,4 +26,8 @@
 
     <string name="animation_creation_screen_title">Animation creation</string>
     <string name="select_sprite_btn_label">Pick a sprite</string>
+
+    <string name="animation_sprite_frame_index_label">Sprite frame:</string>
+    <string name="animation_horizontal_offset_label">Horizontal offset:</string>
+    <string name="animation_vertical_offset_label">Vertical offset:</string>
 </resources>
