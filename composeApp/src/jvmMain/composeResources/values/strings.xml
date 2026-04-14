@@ -4,13 +4,14 @@
     <string name="cancel_btn_label">Cancel</string>
     <string name="save_btn_label">Save</string>
     <string name="back_btn_label">Back</string>
+    <string name="generate_btn_label">Generate</string>
+    <string name="save_btn_label">Save</string>
 
     <string name="pick_color_dialog_title">Pick a color</string>
     <string name="red_field_label">Red</string>
     <string name="green_field_label">Green</string>
     <string name="blue_field_label">Blue</string>
 
-    <string name="generate_btn_label">Generate</string>
     <string name="size_in_pixels_label">Size in pixels:</string>
 
     <string name="creation_progress_dialog_title">Creation in progress</string>
@@ -26,6 +27,7 @@
 
     <string name="animation_creation_screen_title">Animation creation</string>
     <string name="select_sprite_btn_label">Pick a sprite</string>
+    <string name="select_animation_btn_label">Open animation</string>
 
     <string name="animation_sprite_frame_index_label">Sprite frame:</string>
     <string name="animation_horizontal_offset_label">Horizontal offset:</string>

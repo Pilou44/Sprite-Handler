@@ -50,6 +50,8 @@ import spritehandler.composeapp.generated.resources.animation_sprite_frame_index
 import spritehandler.composeapp.generated.resources.animation_vertical_offset_label
 import spritehandler.composeapp.generated.resources.back_btn_label
 import spritehandler.composeapp.generated.resources.generate_btn_label
+import spritehandler.composeapp.generated.resources.save_btn_label
+import spritehandler.composeapp.generated.resources.select_animation_btn_label
 import spritehandler.composeapp.generated.resources.select_sprite_btn_label
 
 @Composable
@@ -92,7 +94,7 @@ private fun AnimationCreationScreen(
                         onClick = { sendIntent(GenerateAnimationIntent) }
                     ) {
                         Text(
-                            text = stringResource(Res.string.generate_btn_label)
+                            text = stringResource(Res.string.save_btn_label)
                         )
                     }
                 }
@@ -375,11 +377,20 @@ private fun PickSpriteBlock(
     sendIntent: (AnimationCreationIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Button(
-        onClick = { sendIntent(PickSpriteIntent) },
+    Row(
         modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Text(stringResource(Res.string.select_sprite_btn_label))
+        Button(
+            onClick = { sendIntent(PickSpriteIntent) },
+        ) {
+            Text(stringResource(Res.string.select_sprite_btn_label))
+        }
+        Button(
+            onClick = { sendIntent(PickAnimationIntent) },
+        ) {
+            Text(stringResource(Res.string.select_animation_btn_label))
+        }
     }
 }
 
