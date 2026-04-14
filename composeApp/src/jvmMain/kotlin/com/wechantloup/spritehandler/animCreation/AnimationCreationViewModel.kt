@@ -1,11 +1,13 @@
 package com.wechantloup.spritehandler.animCreation
 
 import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
+import com.wechantloup.spritehandler.composeElement.dialog.ClosedDialogState
 import com.wechantloup.spritehandler.composeElement.dialog.OpenedDialogState
 import com.wechantloup.spritehandler.exporter.AnimationExporter
 import com.wechantloup.spritehandler.exporter.SpriteExporter
@@ -35,6 +37,7 @@ import spritehandler.composeapp.generated.resources.creation_progress_encoding
 import spritehandler.composeapp.generated.resources.creation_progress_error
 import spritehandler.composeapp.generated.resources.creation_progress_generating_images
 import spritehandler.composeapp.generated.resources.creation_progress_waiting
+import spritehandler.composeapp.generated.resources.ok_btn_label
 import spritehandler.composeapp.generated.resources.save_btn_label
 import java.io.File
 import java.util.logging.Logger
@@ -64,7 +67,26 @@ internal class AnimationCreationViewModel: ViewModel() {
             is SetHorizontalOffsetIntent -> setFramePadding(intent.animationIndex, incX = intent.increment)
             is SetVerticalOffsetIntent -> setFramePadding(intent.animationIndex, incY = intent.increment)
             is SetSpriteFrameIntent -> setSpriteFrame(intent.animationIndex, intent.spriteFrameIndex)
+            is PreviewIntent -> showPreview()
         }
+    }
+
+    private fun showPreview() {
+        val dialog = OpenedDialogState(
+            onDismiss = ::closeDialog,
+            cancelButtonTextRes = Res.string.ok_btn_label,
+            body = ::AnimationPreview,
+        )
+        _stateFlow.value = stateFlow.value.copy(dialog = dialog)
+    }
+
+    private fun closeDialog() {
+        _stateFlow.value = stateFlow.value.copy(dialog = ClosedDialogState)
+    }
+
+    @Composable
+    private fun AnimationPreview() {
+
     }
 
     private fun launchAnimationGeneration() {

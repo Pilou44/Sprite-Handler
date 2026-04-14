@@ -1,11 +1,12 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+    <string name="ok_btn_label">OK</string>
     <string name="validate_btn_label">Validate</string>
     <string name="cancel_btn_label">Cancel</string>
     <string name="save_btn_label">Save</string>
     <string name="back_btn_label">Back</string>
     <string name="generate_btn_label">Generate</string>
-    <string name="save_btn_label">Save</string>
+    <string name="preview_btn_label">Preview</string>
 
     <string name="pick_color_dialog_title">Pick a color</string>
     <string name="red_field_label">Red</string>

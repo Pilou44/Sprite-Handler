@@ -35,6 +35,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.wechantloup.spritehandler.composeElement.dialog.Dialog
+import com.wechantloup.spritehandler.composeElement.dialog.OpenedDialogState
 import com.wechantloup.spritehandler.composeElement.dialog.TopAppBar
 import com.wechantloup.spritehandler.model.Animation
 import com.wechantloup.spritehandler.model.Palette
@@ -49,7 +51,7 @@ import spritehandler.composeapp.generated.resources.animation_horizontal_offset_
 import spritehandler.composeapp.generated.resources.animation_sprite_frame_index_label
 import spritehandler.composeapp.generated.resources.animation_vertical_offset_label
 import spritehandler.composeapp.generated.resources.back_btn_label
-import spritehandler.composeapp.generated.resources.generate_btn_label
+import spritehandler.composeapp.generated.resources.preview_btn_label
 import spritehandler.composeapp.generated.resources.save_btn_label
 import spritehandler.composeapp.generated.resources.select_animation_btn_label
 import spritehandler.composeapp.generated.resources.select_sprite_btn_label
@@ -97,6 +99,13 @@ private fun AnimationCreationScreen(
                             text = stringResource(Res.string.save_btn_label)
                         )
                     }
+                    Button(
+                        onClick = { sendIntent(PreviewIntent) }
+                    ) {
+                        Text(
+                            text = stringResource(Res.string.preview_btn_label)
+                        )
+                    }
                 }
             )
         },
@@ -112,7 +121,10 @@ private fun AnimationCreationScreen(
                     .padding(horizontal = 16.dp)
                     .padding(top = 16.dp),
             ) {
-                PickSpriteBlock(sendIntent = sendIntent)
+                TopButtonsBlock(
+                    sprite = state.sprite,
+                    sendIntent = sendIntent,
+                )
 
                 if (state.sprite == null) return@Column
 
@@ -131,6 +143,9 @@ private fun AnimationCreationScreen(
                         modifier = Modifier.weight(1f),
                     )
                 }
+            }
+            if (state.dialog is OpenedDialogState) {
+                Dialog(state.dialog)
             }
         }
     }
@@ -273,7 +288,7 @@ private fun AnimationFrame(
 }
 
 @Composable
-private fun FramePreview(
+internal fun FramePreview(
     frame: Animation.Frame,
     sprite: Sprite,
     modifier: Modifier = Modifier,
@@ -373,7 +388,8 @@ private fun SpriteFrame(
 }
 
 @Composable
-private fun PickSpriteBlock(
+private fun TopButtonsBlock(
+    sprite: Sprite?,
     sendIntent: (AnimationCreationIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -387,6 +403,7 @@ private fun PickSpriteBlock(
             Text(stringResource(Res.string.select_sprite_btn_label))
         }
         Button(
+            enabled = sprite != null,
             onClick = { sendIntent(PickAnimationIntent) },
         ) {
             Text(stringResource(Res.string.select_animation_btn_label))
