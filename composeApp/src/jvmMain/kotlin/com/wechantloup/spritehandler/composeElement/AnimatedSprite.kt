@@ -1,18 +1,17 @@
 package com.wechantloup.spritehandler.composeElement
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.draw.blur
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wechantloup.spritehandler.model.Animation
@@ -30,13 +29,15 @@ internal fun AnimationFrame(
     diffuserStrength: Float = 0.5f,
 ) {
     val spriteFrame = sprite.frames[frame.spriteFrameIndex]
-    val pixels = applyOffset(
-        frame = spriteFrame,
-        width = sprite.width,
-        height = sprite.height,
-        offsetX = frame.offsetX,
-        offsetY = frame.offsetY,
-    )
+    val pixels = remember(spriteFrame, sprite.width, sprite.height, frame.offsetX, frame.offsetY) {
+        applyOffset(
+            frame = spriteFrame,
+            width = sprite.width,
+            height = sprite.height,
+            offsetX = frame.offsetX,
+            offsetY = frame.offsetY,
+        )
+    }
     SpriteFrame(
         frame = pixels,
         palette = sprite.palette,
@@ -62,21 +63,21 @@ internal fun SpriteFrame(
     diffuserBlur: Dp = spotSize * 0.5f,
     diffuserStrength: Float = 0.5f,
 ) {
+    val colors = remember(palette) { palette.colors.map { Color(it) } }
+
     Box(modifier = modifier.background(Color.Black)) {
-        // Couche nette
-        LedGrid(
+        LedCanvas(
             frame = frame,
-            palette = palette,
+            colors = colors,
             width = width,
             height = height,
             spotSize = spotSize,
             showHalo = showHalo,
         )
-        // Couche diffuseur
         if (diffuserBlur > 0.dp) {
-            LedGrid(
+            LedCanvas(
                 frame = frame,
-                palette = palette,
+                colors = colors,
                 width = width,
                 height = height,
                 spotSize = spotSize,
@@ -90,62 +91,48 @@ internal fun SpriteFrame(
 }
 
 @Composable
-private fun LedGrid(
+private fun LedCanvas(
     frame: List<Int>,
-    palette: Palette,
+    colors: List<Color>,
     width: Int,
     height: Int,
     spotSize: Dp,
     showHalo: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    Column(modifier = modifier) {
+    val spotSizePx = with(LocalDensity.current) { spotSize.toPx() }
+    Canvas(
+        modifier = modifier.size(spotSize * 2 * width, spotSize * 2 * height),
+    ) {
         for (j in 0 until height) {
-            Row {
-                for (i in 0 until width) {
-                    val colorIndex = frame[width * j + i]
-                    val color = Color(palette.colors[colorIndex])
-                    LedPixel(color = color, spotSize = spotSize, showHalo = showHalo)
+            for (i in 0 until width) {
+                val colorIndex = frame[width * j + i]
+                val color = colors[colorIndex]
+                if (color.alpha == 0f) continue
+
+                val centerX = (i * 2 + 1) * spotSizePx
+                val centerY = (j * 2 + 1) * spotSizePx
+                val center = Offset(centerX, centerY)
+
+                if (showHalo) {
+                    drawCircle(
+                        color = color.copy(alpha = 0.15f),
+                        radius = spotSizePx * 0.9f,
+                        center = center,
+                    )
+                    drawCircle(
+                        color = color.copy(alpha = 0.35f),
+                        radius = spotSizePx * 0.65f,
+                        center = center,
+                    )
                 }
+                drawCircle(
+                    color = color,
+                    radius = spotSizePx * 0.5f,
+                    center = center,
+                )
             }
         }
-    }
-}
-
-@Composable
-private fun LedPixel(
-    color: Color,
-    spotSize: Dp,
-    showHalo: Boolean,
-) {
-    val isOff = color.alpha == 0f
-    Box(
-        modifier = Modifier.size(spotSize * 2),
-        contentAlignment = Alignment.Center,
-    ) {
-        if (!isOff && showHalo) {
-            // Halo externe
-            Box(
-                modifier = Modifier
-                    .size(spotSize * 1.8f)
-                    .clip(CircleShape)
-                    .background(color.copy(alpha = 0.15f))
-            )
-            // Halo interne
-            Box(
-                modifier = Modifier
-                    .size(spotSize * 1.3f)
-                    .clip(CircleShape)
-                    .background(color.copy(alpha = 0.35f))
-            )
-        }
-        // Point LED
-        Box(
-            modifier = Modifier
-                .size(spotSize)
-                .clip(CircleShape)
-                .background(color)
-        )
     }
 }
 

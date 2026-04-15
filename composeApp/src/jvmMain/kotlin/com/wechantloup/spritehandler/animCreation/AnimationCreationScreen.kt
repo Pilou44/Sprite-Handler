@@ -200,7 +200,7 @@ private fun AnimationFrame(
         ) {
             Text(stringResource(Res.string.animation_sprite_frame_index_label))
 
-            var frameIndexStr by remember { mutableStateOf(frame.spriteFrameIndex.toString()) }
+            var frameIndexStr by remember(frame.spriteFrameIndex) { mutableStateOf(frame.spriteFrameIndex.toString()) }
             TextField(
                 value = frameIndexStr,
                 onValueChange = {
