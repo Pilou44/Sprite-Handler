@@ -1,7 +1,6 @@
 package com.wechantloup.spritehandler.composeElement
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
@@ -62,13 +61,14 @@ internal fun SpriteFrame(
 ) {
     val colors = remember(palette) { palette.colors.map { Color(it) } }
 
-    Box(modifier = modifier.background(Color.Black)) {
+    Box(modifier = modifier) {
         LedCanvas(
             frame = frame,
             colors = colors,
             width = width,
             height = height,
             spotSize = spotSize,
+            drawBackground = true,
         )
         if (diffuserBlur > 0.dp) {
             LedCanvas(
@@ -92,12 +92,14 @@ private fun LedCanvas(
     width: Int,
     height: Int,
     spotSize: Dp,
+    drawBackground: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     val spotSizePx = with(LocalDensity.current) { spotSize.toPx() }
     Canvas(
         modifier = modifier.size(spotSize * 2 * width, spotSize * 2 * height),
     ) {
+        if (drawBackground) drawRect(Color.Black)
         for (j in 0 until height) {
             for (i in 0 until width) {
                 val colorIndex = frame[width * j + i]
