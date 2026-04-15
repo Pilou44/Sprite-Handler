@@ -278,6 +278,8 @@ private fun AnimationFrame(
             frame = frame,
             sprite = sprite,
             spotSize = 2.dp,
+            showHalo = false,
+            diffuserBlur = 0.dp,
             modifier = Modifier.weight(1f),
         )
     }
@@ -321,6 +323,8 @@ private fun SpriteBlock(
                     width = sprite.width,
                     height = sprite.height,
                     spotSize = 2.dp,
+                    showHalo = false,
+                    diffuserBlur = 0.dp,
                 )
             }
         }

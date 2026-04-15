@@ -25,6 +25,9 @@ internal fun AnimationFrame(
     sprite: Sprite,
     modifier: Modifier = Modifier,
     spotSize: Dp = 16.dp,
+    showHalo: Boolean = true,
+    diffuserBlur: Dp = spotSize * 0.5f,
+    diffuserStrength: Float = 0.5f,
 ) {
     val spriteFrame = sprite.frames[frame.spriteFrameIndex]
     val pixels = applyOffset(
@@ -40,6 +43,9 @@ internal fun AnimationFrame(
         width = sprite.width,
         height = sprite.height,
         spotSize = spotSize,
+        showHalo = showHalo,
+        diffuserBlur = diffuserBlur,
+        diffuserStrength = diffuserStrength,
         modifier = modifier,
     )
 }
@@ -52,6 +58,7 @@ internal fun SpriteFrame(
     height: Int,
     modifier: Modifier = Modifier,
     spotSize: Dp = 16.dp,
+    showHalo: Boolean = true,
     diffuserBlur: Dp = spotSize * 0.5f,
     diffuserStrength: Float = 0.5f,
 ) {
@@ -63,6 +70,7 @@ internal fun SpriteFrame(
             width = width,
             height = height,
             spotSize = spotSize,
+            showHalo = showHalo,
         )
         // Couche diffuseur
         if (diffuserBlur > 0.dp) {
@@ -72,6 +80,7 @@ internal fun SpriteFrame(
                 width = width,
                 height = height,
                 spotSize = spotSize,
+                showHalo = showHalo,
                 modifier = Modifier
                     .blur(diffuserBlur)
                     .graphicsLayer(alpha = diffuserStrength),
@@ -87,6 +96,7 @@ private fun LedGrid(
     width: Int,
     height: Int,
     spotSize: Dp,
+    showHalo: Boolean,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier) {
@@ -95,7 +105,7 @@ private fun LedGrid(
                 for (i in 0 until width) {
                     val colorIndex = frame[width * j + i]
                     val color = Color(palette.colors[colorIndex])
-                    LedPixel(color = color, spotSize = spotSize)
+                    LedPixel(color = color, spotSize = spotSize, showHalo = showHalo)
                 }
             }
         }
@@ -103,13 +113,17 @@ private fun LedGrid(
 }
 
 @Composable
-private fun LedPixel(color: Color, spotSize: Dp) {
+private fun LedPixel(
+    color: Color,
+    spotSize: Dp,
+    showHalo: Boolean,
+) {
     val isOff = color.alpha == 0f
     Box(
         modifier = Modifier.size(spotSize * 2),
         contentAlignment = Alignment.Center,
     ) {
-        if (!isOff) {
+        if (!isOff && showHalo) {
             // Halo externe
             Box(
                 modifier = Modifier
