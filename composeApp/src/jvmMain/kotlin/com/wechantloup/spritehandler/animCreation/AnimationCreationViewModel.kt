@@ -91,7 +91,7 @@ internal class AnimationCreationViewModel: ViewModel() {
     ) {
         var frameIndex by remember { mutableIntStateOf(0) }
         LaunchedEffect(frameIndex) {
-            delay(20)
+            delay(40)
             frameIndex = (frameIndex + 1) % animation.frames.size
         }
 
