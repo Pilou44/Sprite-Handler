@@ -4,10 +4,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -51,25 +51,50 @@ internal fun SpriteFrame(
     spotSize: Dp = 16.dp,
 ) {
     Column(
-        modifier = modifier.background(Color.Black)
+        modifier = modifier.background(Color.Black),
     ) {
         for (j in 0 until height) {
             Row {
                 for (i in 0 until width) {
-                    val index = width * j + i
-                    val colorIndex = frame[index]
-                    val colorArgb = palette.colors[colorIndex]
-                    val color = Color(colorArgb)
-                    Box(
-                        modifier = Modifier
-                            .padding(spotSize / 2)
-                            .size(spotSize)
-                            .clip(CircleShape)
-                            .background(color)
-                    )
+                    val colorIndex = frame[width * j + i]
+                    val color = Color(palette.colors[colorIndex])
+                    LedPixel(color = color, spotSize = spotSize)
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun LedPixel(color: Color, spotSize: Dp) {
+    val isOff = color.alpha == 0f
+    Box(
+        modifier = Modifier.size(spotSize * 2),
+        contentAlignment = Alignment.Center,
+    ) {
+        if (!isOff) {
+            // Halo externe
+            Box(
+                modifier = Modifier
+                    .size(spotSize * 1.8f)
+                    .clip(CircleShape)
+                    .background(color.copy(alpha = 0.15f))
+            )
+            // Halo interne
+            Box(
+                modifier = Modifier
+                    .size(spotSize * 1.3f)
+                    .clip(CircleShape)
+                    .background(color.copy(alpha = 0.35f))
+            )
+        }
+        // Point LED
+        Box(
+            modifier = Modifier
+                .size(spotSize)
+                .clip(CircleShape)
+                .background(color)
+        )
     }
 }
 
