@@ -266,7 +266,7 @@ private fun AnimationFrame(
                     Text("-1")
                 }
                 Text(
-                    text = frame.offsetX.toString(),
+                    text = frame.offsetY.toString(),
                     textAlign = TextAlign.Center,
                     modifier = Modifier.width(48.dp),
                 )
