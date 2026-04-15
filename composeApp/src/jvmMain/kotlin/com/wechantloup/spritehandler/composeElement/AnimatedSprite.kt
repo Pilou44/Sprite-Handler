@@ -9,8 +9,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wechantloup.spritehandler.model.Animation
@@ -49,10 +51,44 @@ internal fun SpriteFrame(
     height: Int,
     modifier: Modifier = Modifier,
     spotSize: Dp = 16.dp,
+    diffuserBlur: Dp = spotSize * 0.5f,
+    diffuserStrength: Float = 0.5f,
 ) {
-    Column(
-        modifier = modifier.background(Color.Black),
-    ) {
+    Box(modifier = modifier.background(Color.Black)) {
+        // Couche nette
+        LedGrid(
+            frame = frame,
+            palette = palette,
+            width = width,
+            height = height,
+            spotSize = spotSize,
+        )
+        // Couche diffuseur
+        if (diffuserBlur > 0.dp) {
+            LedGrid(
+                frame = frame,
+                palette = palette,
+                width = width,
+                height = height,
+                spotSize = spotSize,
+                modifier = Modifier
+                    .blur(diffuserBlur)
+                    .graphicsLayer(alpha = diffuserStrength),
+            )
+        }
+    }
+}
+
+@Composable
+private fun LedGrid(
+    frame: List<Int>,
+    palette: Palette,
+    width: Int,
+    height: Int,
+    spotSize: Dp,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier) {
         for (j in 0 until height) {
             Row {
                 for (i in 0 until width) {
