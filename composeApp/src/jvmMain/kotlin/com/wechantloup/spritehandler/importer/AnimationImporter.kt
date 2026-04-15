@@ -4,7 +4,7 @@ import com.wechantloup.spritehandler.model.Animation
 
 internal object AnimationImporter {
     fun import(bytes: List<Byte>): Animation {
-        val version = bytes[0].toInt()
+        val version = bytes[0].toInt() and 0xFF
         return when (version) {
             0 -> importV0(bytes)
             else -> throw IllegalStateException("Unknown sprite version")
@@ -13,6 +13,10 @@ internal object AnimationImporter {
 
     private fun importV0(bytes: List<Byte>): Animation {
         var index = 1
+
+        val width = bytes[index++].toInt() and 0xFF
+        val height = bytes[index++].toInt() and 0xFF
+
         val frameCount = bytes[index++].toInt() and 0xFF
 
         val frames = mutableListOf<Animation.Frame>()
@@ -29,7 +33,7 @@ internal object AnimationImporter {
             )
             frames.add(frame)
         }
-        return Animation(frames)
+        return Animation(frames, width, height)
     }
 
     private fun List<Byte>.toSignedInt(): Int {

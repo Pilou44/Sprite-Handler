@@ -12,6 +12,8 @@
     <string name="red_field_label">Red</string>
     <string name="green_field_label">Green</string>
     <string name="blue_field_label">Blue</string>
+    <string name="width_field_label">Width</string>
+    <string name="height_field_label">Height</string>
 
     <string name="size_in_pixels_label">Size in pixels:</string>
 

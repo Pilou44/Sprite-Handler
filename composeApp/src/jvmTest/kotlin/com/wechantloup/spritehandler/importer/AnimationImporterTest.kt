@@ -31,7 +31,7 @@ class AnimationImporterTest {
             )
         }
         val sourceFrames = listOf(frame1, frame2, frame3)
-        val sourceAnimation = Animation(sourceFrames)
+        val sourceAnimation = Animation(sourceFrames, 48, 48)
 
         val bytes = AnimationExporter.export(sourceAnimation)
         val resultAnimation = AnimationImporter.import(bytes)

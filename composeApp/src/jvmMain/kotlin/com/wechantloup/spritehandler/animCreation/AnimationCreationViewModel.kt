@@ -65,6 +65,7 @@ internal class AnimationCreationViewModel: ViewModel() {
             is SetVerticalOffsetIntent -> setFramePadding(intent.animationIndex, incY = intent.increment)
             is SetSpriteFrameIntent -> setSpriteFrame(intent.animationIndex, intent.spriteFrameIndex)
             is PreviewIntent -> showPreview()
+            is SetAnimationSizeIntent -> setAnimationSize(intent.width, intent.height)
         }
     }
 
@@ -162,6 +163,16 @@ internal class AnimationCreationViewModel: ViewModel() {
         )
         frames.add(index, newFrame)
         val newAnimation = animation.copy(frames = frames)
+        _stateFlow.value = stateFlow.value.copy(
+            animation = newAnimation
+        )
+    }
+
+    private fun setAnimationSize(width: Int?, height: Int?) {
+        val animation = stateFlow.value.animation
+        val newWidth = width ?: animation.width
+        val newHeight = height ?: animation.height
+        val newAnimation = animation.copy(width = newWidth, height = newHeight)
         _stateFlow.value = stateFlow.value.copy(
             animation = newAnimation
         )

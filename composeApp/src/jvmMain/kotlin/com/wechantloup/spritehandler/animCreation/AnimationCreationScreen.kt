@@ -46,10 +46,12 @@ import spritehandler.composeapp.generated.resources.animation_horizontal_offset_
 import spritehandler.composeapp.generated.resources.animation_sprite_frame_index_label
 import spritehandler.composeapp.generated.resources.animation_vertical_offset_label
 import spritehandler.composeapp.generated.resources.back_btn_label
+import spritehandler.composeapp.generated.resources.height_field_label
 import spritehandler.composeapp.generated.resources.preview_btn_label
 import spritehandler.composeapp.generated.resources.save_btn_label
 import spritehandler.composeapp.generated.resources.select_animation_btn_label
 import spritehandler.composeapp.generated.resources.select_sprite_btn_label
+import spritehandler.composeapp.generated.resources.width_field_label
 
 @Composable
 internal fun AnimationCreationScreen(
@@ -88,6 +90,7 @@ private fun AnimationCreationScreen(
                 onNavigationPressed = back,
                 actions = {
                     Button(
+                        enabled = state.animation.isValid,
                         onClick = { sendIntent(GenerateAnimationIntent) }
                     ) {
                         Text(
@@ -95,6 +98,7 @@ private fun AnimationCreationScreen(
                         )
                     }
                     Button(
+                        enabled = state.animation.isValid,
                         onClick = { sendIntent(PreviewIntent) }
                     ) {
                         Text(
@@ -118,6 +122,7 @@ private fun AnimationCreationScreen(
             ) {
                 TopButtonsBlock(
                     sprite = state.sprite,
+                    animation = state.animation,
                     sendIntent = sendIntent,
                 )
 
@@ -241,10 +246,6 @@ private fun AnimationFrame(
                     Text("+1")
                 }
             }
-        }
-        Column(
-            modifier = Modifier.weight(1f),
-        ) {
             Text(
                 text = stringResource(Res.string.animation_vertical_offset_label),
                 fontSize = 12.sp,
@@ -330,9 +331,12 @@ private fun SpriteBlock(
 @Composable
 private fun TopButtonsBlock(
     sprite: Sprite?,
+    animation: Animation,
     sendIntent: (AnimationCreationIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    var widthStr by remember { mutableStateOf(animation.width.takeIf { it > 0 } ?.toString() ?: "") }
+    var heightStr by remember { mutableStateOf(animation.height.takeIf { it > 0 } ?.toString() ?: "") }
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -347,6 +351,39 @@ private fun TopButtonsBlock(
             onClick = { sendIntent(PickAnimationIntent) },
         ) {
             Text(stringResource(Res.string.select_animation_btn_label))
+        }
+        if (sprite != null) {
+            TextField(
+                value = widthStr,
+                onValueChange = {
+                    if (it.all { c -> c.isDigit() }) widthStr = it
+                    it.toIntOrNull()?.let { width ->
+                        sendIntent(SetAnimationSizeIntent(width = width))
+                    }
+                },
+                placeholder = {
+                    Text(
+                        text = stringResource(Res.string.width_field_label)
+                    )
+                }
+            )
+            Text(
+                text = "x",
+            )
+            TextField(
+                value = heightStr,
+                onValueChange = {
+                    if (it.all { c -> c.isDigit() }) heightStr = it
+                    it.toIntOrNull()?.let { height ->
+                        sendIntent(SetAnimationSizeIntent(height = height))
+                    }
+                },
+                placeholder = {
+                    Text(
+                        text = stringResource(Res.string.height_field_label)
+                    )
+                }
+            )
         }
     }
 }

@@ -6,7 +6,7 @@ import com.wechantloup.spritehandler.model.Sprite
 internal object SpriteImporter {
 
     fun import(bytes: List<Byte>): Sprite {
-        val version = bytes[0].toInt()
+        val version = bytes[0].toInt() and 0xFF
         return when (version) {
             0 -> importV0(bytes)
             else -> throw IllegalStateException("Unknown sprite version")

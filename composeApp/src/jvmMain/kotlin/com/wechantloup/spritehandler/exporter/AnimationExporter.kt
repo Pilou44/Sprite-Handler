@@ -8,6 +8,9 @@ internal object AnimationExporter {
 
         bytes.add(0.toByte()) // Version 0
 
+        bytes.add(animation.width.toByte())
+        bytes.add(animation.height.toByte())
+
         val frameCount = animation.frames.size
         require(frameCount <= 255) { "Animation frame count must be 255 or less" }
         bytes.add(frameCount.toByte())
