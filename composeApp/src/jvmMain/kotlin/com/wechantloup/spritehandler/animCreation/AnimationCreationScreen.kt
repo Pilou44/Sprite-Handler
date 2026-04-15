@@ -277,6 +277,7 @@ private fun AnimationFrame(
         AnimationFrame(
             frame = frame,
             sprite = sprite,
+            spotSize = 2.dp,
             modifier = Modifier.weight(1f),
         )
     }

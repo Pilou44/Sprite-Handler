@@ -24,6 +24,7 @@ internal fun AnimationFrame(
     frame: Animation.Frame,
     sprite: Sprite,
     modifier: Modifier = Modifier,
+    spotSize: Dp = 16.dp,
 ) {
     val spriteFrame = sprite.frames[frame.spriteFrameIndex]
     val pixels = applyOffset(
@@ -38,7 +39,7 @@ internal fun AnimationFrame(
         palette = sprite.palette,
         width = sprite.width,
         height = sprite.height,
-        spotSize = 2.dp,
+        spotSize = spotSize,
         modifier = modifier,
     )
 }

@@ -1,44 +1,41 @@
 package com.wechantloup.spritehandler.animCreation
 
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
+import com.wechantloup.spritehandler.composeElement.AnimationFrame
 import com.wechantloup.spritehandler.composeElement.dialog.ClosedDialogState
 import com.wechantloup.spritehandler.composeElement.dialog.OpenedDialogState
 import com.wechantloup.spritehandler.exporter.AnimationExporter
-import com.wechantloup.spritehandler.exporter.SpriteExporter
 import com.wechantloup.spritehandler.importer.AnimationImporter
 import com.wechantloup.spritehandler.importer.SpriteImporter
+import com.wechantloup.spritehandler.model.Animation
 import com.wechantloup.spritehandler.model.Animation.Frame
 import com.wechantloup.spritehandler.model.Sprite
-import com.wechantloup.spritehandler.model.SpriteAlignment
-import com.wechantloup.spritehandler.spriteCreation.GenerationState
-import com.wechantloup.spritehandler.useCase.SpriteUseCase
 import javax.swing.JFileChooser
 import javax.swing.SwingUtilities.invokeAndWait
 import javax.swing.filechooser.FileNameExtensionFilter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.stringResource
 import spritehandler.composeapp.generated.resources.Res
-import spritehandler.composeapp.generated.resources.cancel_btn_label
-import spritehandler.composeapp.generated.resources.creation_progress_checking_palette
-import spritehandler.composeapp.generated.resources.creation_progress_dialog_title
-import spritehandler.composeapp.generated.resources.creation_progress_done
-import spritehandler.composeapp.generated.resources.creation_progress_encoding
-import spritehandler.composeapp.generated.resources.creation_progress_error
-import spritehandler.composeapp.generated.resources.creation_progress_generating_images
-import spritehandler.composeapp.generated.resources.creation_progress_waiting
 import spritehandler.composeapp.generated.resources.ok_btn_label
-import spritehandler.composeapp.generated.resources.save_btn_label
 import java.io.File
 import java.util.logging.Logger
 import kotlin.reflect.KClass
@@ -72,10 +69,13 @@ internal class AnimationCreationViewModel: ViewModel() {
     }
 
     private fun showPreview() {
+        val sprite = stateFlow.value.sprite ?: return
+        val animation = stateFlow.value.animation
+
         val dialog = OpenedDialogState(
             onDismiss = ::closeDialog,
             cancelButtonTextRes = Res.string.ok_btn_label,
-            body = ::AnimationPreview,
+            body = { AnimationPreview(sprite, animation) },
         )
         _stateFlow.value = stateFlow.value.copy(dialog = dialog)
     }
@@ -85,8 +85,26 @@ internal class AnimationCreationViewModel: ViewModel() {
     }
 
     @Composable
-    private fun AnimationPreview() {
+    private fun AnimationPreview(
+        sprite: Sprite,
+        animation: Animation,
+    ) {
+        var frameIndex by remember { mutableIntStateOf(0) }
+        LaunchedEffect(frameIndex) {
+            delay(20)
+            frameIndex = (frameIndex + 1) % animation.frames.size
+        }
 
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            AnimationFrame(
+                frame = animation.frames[frameIndex],
+                sprite = sprite,
+                spotSize = 4.dp,
+            )
+        }
     }
 
     private fun launchAnimationGeneration() {
