@@ -103,6 +103,8 @@ internal class AnimationCreationViewModel: ViewModel() {
             AnimationFrame(
                 frame = animation.frames[frameIndex],
                 sprite = sprite,
+                animWidth = animation.width,
+                animHeight = animation.height,
                 spotSize = 4.dp,
             )
         }

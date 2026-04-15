@@ -176,6 +176,8 @@ private fun AnimationBlock(
                 AnimationFrame(
                     frame = animation.frames[index],
                     index = index,
+                    animWidth = animation.width,
+                    animHeight = animation.height,
                     sprite = sprite,
                     sendIntent = sendIntent,
                 )
@@ -191,6 +193,8 @@ private fun AnimationBlock(
 private fun AnimationFrame(
     frame: Animation.Frame,
     index: Int,
+    animWidth: Int,
+    animHeight: Int,
     sprite: Sprite,
     sendIntent: (AnimationCreationIntent) -> Unit,
     modifier: Modifier = Modifier,
@@ -278,6 +282,8 @@ private fun AnimationFrame(
         AnimationFrame(
             frame = frame,
             sprite = sprite,
+            animWidth = animWidth,
+            animHeight = animHeight,
             spotSize = 2.dp,
             modifier = Modifier.weight(1f),
         )

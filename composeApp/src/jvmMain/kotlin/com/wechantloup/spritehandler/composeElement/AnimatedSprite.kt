@@ -21,17 +21,21 @@ import com.wechantloup.spritehandler.model.Sprite
 internal fun AnimationFrame(
     frame: Animation.Frame,
     sprite: Sprite,
+    animWidth: Int,
+    animHeight: Int,
     modifier: Modifier = Modifier,
     spotSize: Dp = 16.dp,
     diffuserBlur: Dp = spotSize * 0.5f,
     diffuserStrength: Float = 0.5f,
 ) {
     val spriteFrame = sprite.frames[frame.spriteFrameIndex]
-    val pixels = remember(spriteFrame, sprite.width, sprite.height, frame.offsetX, frame.offsetY) {
+    val pixels = remember(spriteFrame, sprite.width, sprite.height, animWidth, animHeight, frame.offsetX, frame.offsetY) {
         applyOffset(
             frame = spriteFrame,
-            width = sprite.width,
-            height = sprite.height,
+            spriteWidth = sprite.width,
+            spriteHeight = sprite.height,
+            animWidth = animWidth,
+            animHeight = animHeight,
             offsetX = frame.offsetX,
             offsetY = frame.offsetY,
         )
@@ -39,8 +43,8 @@ internal fun AnimationFrame(
     SpriteFrame(
         frame = pixels,
         palette = sprite.palette,
-        width = sprite.width,
-        height = sprite.height,
+        width = animWidth,
+        height = animHeight,
         spotSize = spotSize,
         diffuserBlur = diffuserBlur,
         diffuserStrength = diffuserStrength,
@@ -132,18 +136,25 @@ private fun LedCanvas(
 
 private fun applyOffset(
     frame: List<Int>,
-    width: Int,
-    height: Int,
+    spriteWidth: Int,
+    spriteHeight: Int,
+    animWidth: Int,
+    animHeight: Int,
     offsetX: Int,
     offsetY: Int,
-): List<Int> = List(width * height) { index ->
-    val destX = index % width
-    val destY = index / width
-    val srcX = destX - offsetX
-    val srcY = destY - offsetY
-    if (srcX in 0 until width && srcY in 0 until height) {
-        frame[srcY * width + srcX]
-    } else {
-        0
+): List<Int> {
+    // Ancre bas-gauche : bas du sprite aligné sur le bas de la canvas d'animation,
+    // gauche alignée sur la gauche. Aucune ambiguïté odd/even.
+    val baseY = spriteHeight - animHeight
+    return List(animWidth * animHeight) { index ->
+        val destX = index % animWidth
+        val destY = index / animWidth
+        val srcX = destX - offsetX
+        val srcY = destY + baseY - offsetY
+        if (srcX in 0 until spriteWidth && srcY in 0 until spriteHeight) {
+            frame[srcY * spriteWidth + srcX]
+        } else {
+            0
+        }
     }
 }
