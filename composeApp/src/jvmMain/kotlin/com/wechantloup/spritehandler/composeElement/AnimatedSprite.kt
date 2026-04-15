@@ -7,10 +7,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -24,7 +24,6 @@ internal fun AnimationFrame(
     sprite: Sprite,
     modifier: Modifier = Modifier,
     spotSize: Dp = 16.dp,
-    showHalo: Boolean = true,
     diffuserBlur: Dp = spotSize * 0.5f,
     diffuserStrength: Float = 0.5f,
 ) {
@@ -44,7 +43,6 @@ internal fun AnimationFrame(
         width = sprite.width,
         height = sprite.height,
         spotSize = spotSize,
-        showHalo = showHalo,
         diffuserBlur = diffuserBlur,
         diffuserStrength = diffuserStrength,
         modifier = modifier,
@@ -59,7 +57,6 @@ internal fun SpriteFrame(
     height: Int,
     modifier: Modifier = Modifier,
     spotSize: Dp = 16.dp,
-    showHalo: Boolean = true,
     diffuserBlur: Dp = spotSize * 0.5f,
     diffuserStrength: Float = 0.5f,
 ) {
@@ -72,7 +69,6 @@ internal fun SpriteFrame(
             width = width,
             height = height,
             spotSize = spotSize,
-            showHalo = showHalo,
         )
         if (diffuserBlur > 0.dp) {
             LedCanvas(
@@ -81,7 +77,6 @@ internal fun SpriteFrame(
                 width = width,
                 height = height,
                 spotSize = spotSize,
-                showHalo = showHalo,
                 modifier = Modifier
                     .blur(diffuserBlur)
                     .graphicsLayer(alpha = diffuserStrength),
@@ -97,7 +92,6 @@ private fun LedCanvas(
     width: Int,
     height: Int,
     spotSize: Dp,
-    showHalo: Boolean,
     modifier: Modifier = Modifier,
 ) {
     val spotSizePx = with(LocalDensity.current) { spotSize.toPx() }
@@ -114,18 +108,16 @@ private fun LedCanvas(
                 val centerY = (j * 2 + 1) * spotSizePx
                 val center = Offset(centerX, centerY)
 
-                if (showHalo) {
-                    drawCircle(
-                        color = color.copy(alpha = 0.15f),
-                        radius = spotSizePx * 0.9f,
-                        center = center,
-                    )
-                    drawCircle(
-                        color = color.copy(alpha = 0.35f),
-                        radius = spotSizePx * 0.65f,
-                        center = center,
-                    )
-                }
+                drawCircle(
+                    color = color.copy(alpha = 0.15f),
+                    radius = spotSizePx * 0.9f,
+                    center = center,
+                )
+                drawCircle(
+                    color = color.copy(alpha = 0.35f),
+                    radius = spotSizePx * 0.65f,
+                    center = center,
+                )
                 drawCircle(
                     color = color,
                     radius = spotSizePx * 0.5f,

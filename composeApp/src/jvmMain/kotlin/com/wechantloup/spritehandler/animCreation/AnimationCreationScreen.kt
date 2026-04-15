@@ -31,9 +31,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.wechantloup.spritehandler.composeElement.AnimationFrame
 import com.wechantloup.spritehandler.composeElement.SpriteFrame
+import com.wechantloup.spritehandler.composeElement.TopAppBar
 import com.wechantloup.spritehandler.composeElement.dialog.Dialog
 import com.wechantloup.spritehandler.composeElement.dialog.OpenedDialogState
-import com.wechantloup.spritehandler.composeElement.TopAppBar
 import com.wechantloup.spritehandler.model.Animation
 import com.wechantloup.spritehandler.model.Sprite
 import kotlinx.coroutines.CoroutineScope
@@ -278,8 +278,6 @@ private fun AnimationFrame(
             frame = frame,
             sprite = sprite,
             spotSize = 2.dp,
-            showHalo = false,
-            diffuserBlur = 0.dp,
             modifier = Modifier.weight(1f),
         )
     }
@@ -323,8 +321,6 @@ private fun SpriteBlock(
                     width = sprite.width,
                     height = sprite.height,
                     spotSize = 2.dp,
-                    showHalo = false,
-                    diffuserBlur = 0.dp,
                 )
             }
         }
