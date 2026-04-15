@@ -1,6 +1,5 @@
 package com.wechantloup.spritehandler.animCreation
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,10 +8,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
@@ -29,17 +26,15 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.wechantloup.spritehandler.composeElement.AnimationFrame
+import com.wechantloup.spritehandler.composeElement.SpriteFrame
 import com.wechantloup.spritehandler.composeElement.dialog.Dialog
 import com.wechantloup.spritehandler.composeElement.dialog.OpenedDialogState
-import com.wechantloup.spritehandler.composeElement.dialog.TopAppBar
+import com.wechantloup.spritehandler.composeElement.TopAppBar
 import com.wechantloup.spritehandler.model.Animation
-import com.wechantloup.spritehandler.model.Palette
 import com.wechantloup.spritehandler.model.Sprite
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
@@ -279,36 +274,12 @@ private fun AnimationFrame(
                 }
             }
         }
-        FramePreview(
-            frame,
-            sprite,
+        AnimationFrame(
+            frame = frame,
+            sprite = sprite,
             modifier = Modifier.weight(1f),
         )
     }
-}
-
-@Composable
-internal fun FramePreview(
-    frame: Animation.Frame,
-    sprite: Sprite,
-    modifier: Modifier = Modifier,
-) {
-    val spriteFrame = sprite.frames[frame.spriteFrameIndex]
-    val pixels = applyOffset(
-        frame = spriteFrame,
-        width = sprite.width,
-        height = sprite.height,
-        offsetX = frame.offsetX,
-        offsetY = frame.offsetY,
-    )
-    SpriteFrame(
-        frame = pixels,
-        palette = sprite.palette,
-        width = sprite.width,
-        height = sprite.height,
-        spotSize = 2.dp,
-        modifier = modifier,
-    )
 }
 
 @Composable
@@ -356,38 +327,6 @@ private fun SpriteBlock(
 }
 
 @Composable
-private fun SpriteFrame(
-    frame: List<Int>,
-    palette: Palette,
-    width: Int,
-    height: Int,
-    modifier: Modifier = Modifier,
-    spotSize: Dp = 16.dp,
-) {
-    Column(
-        modifier = modifier.background(Color.Black)
-    ) {
-        for (j in 0 until height) {
-            Row {
-                for (i in 0 until width) {
-                    val index = width * j + i
-                    val colorIndex = frame[index]
-                    val colorArgb = palette.colors[colorIndex]
-                    val color = Color(colorArgb)
-                    Box(
-                        modifier = Modifier
-                            .padding(spotSize / 2)
-                            .size(spotSize)
-                            .clip(CircleShape)
-                            .background(color)
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
 private fun TopButtonsBlock(
     sprite: Sprite?,
     sendIntent: (AnimationCreationIntent) -> Unit,
@@ -414,22 +353,3 @@ private fun TopButtonsBlock(
 private fun Channel<AnimationCreationIntent>.sendIntent(scope: CoroutineScope, intent: AnimationCreationIntent) {
     scope.launch { send(intent) }
 }
-
-private fun applyOffset(
-    frame: List<Int>,
-    width: Int,
-    height: Int,
-    offsetX: Int,
-    offsetY: Int,
-): List<Int> = List(width * height) { index ->
-    val destX = index % width
-    val destY = index / width
-    val srcX = destX - offsetX
-    val srcY = destY - offsetY
-    if (srcX in 0 until width && srcY in 0 until height) {
-        frame[srcY * width + srcX]
-    } else {
-        0
-    }
-}
-
