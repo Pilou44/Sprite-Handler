@@ -341,8 +341,8 @@ private fun TopButtonsBlock(
     sendIntent: (AnimationCreationIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var widthStr by remember { mutableStateOf(animation.width.takeIf { it > 0 } ?.toString() ?: "") }
-    var heightStr by remember { mutableStateOf(animation.height.takeIf { it > 0 } ?.toString() ?: "") }
+    var widthStr by remember(animation.width) { mutableStateOf(animation.width.takeIf { it > 0 } ?.toString() ?: "") }
+    var heightStr by remember(animation.height) { mutableStateOf(animation.height.takeIf { it > 0 } ?.toString() ?: "") }
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
