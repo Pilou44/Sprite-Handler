@@ -29,7 +29,8 @@ internal object AnimationImporter {
             val frame = Animation.Frame(
                 spriteFrameIndex = spriteFrameIndex,
                 offsetX = offsetX,
-                offsetY = offestY
+                offsetY = offestY,
+                paletteIndex = 0,
             )
             frames.add(frame)
         }

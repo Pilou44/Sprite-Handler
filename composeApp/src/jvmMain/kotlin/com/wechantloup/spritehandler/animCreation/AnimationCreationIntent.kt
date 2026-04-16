@@ -11,3 +11,4 @@ data class SetSpriteFrameIntent(val animationIndex: Int, val spriteFrameIndex: I
 data class SetHorizontalOffsetIntent(val animationIndex: Int, val increment: Int): AnimationCreationIntent
 data class SetVerticalOffsetIntent(val animationIndex: Int, val increment: Int): AnimationCreationIntent
 data class SetAnimationSizeIntent(val width: Int? = null, val height: Int? = null): AnimationCreationIntent
+data class SetFramePalette(val frameIndex: Int, val paletteIndex: Int): AnimationCreationIntent

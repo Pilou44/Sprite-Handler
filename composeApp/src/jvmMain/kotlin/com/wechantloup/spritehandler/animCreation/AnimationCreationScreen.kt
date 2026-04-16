@@ -13,7 +13,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -35,6 +38,7 @@ import com.wechantloup.spritehandler.composeElement.TopAppBar
 import com.wechantloup.spritehandler.composeElement.dialog.Dialog
 import com.wechantloup.spritehandler.composeElement.dialog.OpenedDialogState
 import com.wechantloup.spritehandler.model.Animation
+import com.wechantloup.spritehandler.model.Palette
 import com.wechantloup.spritehandler.model.Sprite
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
@@ -279,14 +283,66 @@ private fun AnimationFrame(
                 }
             }
         }
-        AnimationFrame(
-            frame = frame,
-            sprite = sprite,
-            animWidth = animWidth,
-            animHeight = animHeight,
-            spotSize = 2.dp,
+        Column(
             modifier = Modifier.weight(1f),
+        ) {
+            AnimationFrame(
+                frame = frame,
+                sprite = sprite,
+                animWidth = animWidth,
+                animHeight = animHeight,
+                spotSize = 2.dp,
+            )
+            PalettePicker(
+                frameIndex = index,
+                paletteIndex = frame.paletteIndex,
+                palettes = sprite.palettes,
+                sendIntent = sendIntent,
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun PalettePicker(
+    frameIndex: Int,
+    paletteIndex: Int,
+    palettes: List<Palette>,
+    sendIntent: (AnimationCreationIntent) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    var expanded by remember { mutableStateOf(false) }
+    var selectedText by remember(paletteIndex) { mutableStateOf("Palette $paletteIndex") }
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = it },
+        modifier = modifier,
+    ) {
+        TextField(
+            value = selectedText,
+            onValueChange = {},
+            readOnly = true,
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
+            modifier = Modifier.menuAnchor()
         )
+
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            palettes.forEachIndexed { index, palette ->
+                DropdownMenuItem(
+                    text = { Text("Palette $index") },
+                    onClick = {
+                        selectedText = "Palette $index"
+                        sendIntent(SetFramePalette(frameIndex, index))
+                        expanded = false
+                    }
+                )
+            }
+        }
     }
 }
 

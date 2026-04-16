@@ -18,5 +18,10 @@ data class Animation(
         val spriteFrameIndex: Int,
         val offsetX: Int,
         val offsetY: Int,
-    )
+        val paletteIndex: Int,
+    ) {
+        init {
+            require(paletteIndex <= 255) { "Palette index must be 255 or less" }
+        }
+    }
 }

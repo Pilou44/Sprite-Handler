@@ -42,7 +42,7 @@ internal fun AnimationFrame(
     }
     SpriteFrame(
         frame = pixels,
-        palette = sprite.palettes[0],
+        palette = sprite.palettes[frame.paletteIndex],
         width = animWidth,
         height = animHeight,
         spotSize = spotSize,
