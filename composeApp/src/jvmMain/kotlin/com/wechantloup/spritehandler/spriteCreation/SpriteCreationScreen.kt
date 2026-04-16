@@ -41,6 +41,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import spritehandler.composeapp.generated.resources.Res
+import spritehandler.composeapp.generated.resources.add_palette_btn_label
 import spritehandler.composeapp.generated.resources.back_btn_label
 import spritehandler.composeapp.generated.resources.generate_btn_label
 import spritehandler.composeapp.generated.resources.gererate_palette_btn_label
@@ -183,16 +184,29 @@ private fun PaletteBlock(
                 Text(stringResource(Res.string.load_palette_btn_label))
             }
         }
-        ColorPalette(
-            palette = palettes[0],
-            sendIntent = sendIntent,
-        )
+        palettes.forEachIndexed { index, palette ->
+            Row {
+                ColorPalette(
+                    palette = palette,
+                    paletteIndex = index,
+                    sendIntent = sendIntent,
+                )
+                if (index == palettes.lastIndex) {
+                    Button(
+                        onClick = { sendIntent(AddPaletteIntent) },
+                    ) {
+                        Text(stringResource(Res.string.add_palette_btn_label))
+                    }
+                }
+            }
+        }
     }
 }
 
 @Composable
 private fun ColorPalette(
     palette: Palette,
+    paletteIndex: Int,
     sendIntent: (SpriteCreationIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -203,7 +217,7 @@ private fun ColorPalette(
         for (i in 0 until 15) {
             ColorPicker(
                 colorArgb = palette.colors[i + 1],
-                onClick = { sendIntent(ShowColorPickerIntent(colorIndex = i + 1, paletteIndex = 0)) },
+                onClick = { sendIntent(ShowColorPickerIntent(colorIndex = i + 1, paletteIndex = paletteIndex)) },
             )
         }
     }

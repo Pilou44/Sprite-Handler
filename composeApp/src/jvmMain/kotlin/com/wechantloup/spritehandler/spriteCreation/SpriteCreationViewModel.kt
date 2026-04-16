@@ -103,7 +103,15 @@ internal class SpriteCreationViewModel: ViewModel() {
             is LoadPaletteIntent -> loadPaletteFromFile()
             is ShowColorPickerIntent -> showColorPicker(intent.colorIndex, intent.paletteIndex)
             is GenerateSpriteIntent -> showGenerationDialog()
+            is AddPaletteIntent -> addPalette()
         }
+    }
+
+    private fun addPalette() {
+        val palettes = stateFlow.value.palettes.toMutableList()
+        val newPalette = palettes.last().copy()
+        palettes.add(newPalette)
+        _stateFlow.value = stateFlow.value.copy(palettes = palettes)
     }
 
     private fun loadPaletteFromFile() {

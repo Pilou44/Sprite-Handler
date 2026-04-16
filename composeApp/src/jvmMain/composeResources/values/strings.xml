@@ -19,6 +19,7 @@
 
     <string name="gererate_palette_btn_label">Generate palette from selected images</string>
     <string name="load_palette_btn_label">Load palette from file</string>
+    <string name="add_palette_btn_label">Add palette</string>
 
     <string name="creation_progress_dialog_title">Creation in progress</string>
     <string name="creation_progress_waiting">Waiting...</string>
