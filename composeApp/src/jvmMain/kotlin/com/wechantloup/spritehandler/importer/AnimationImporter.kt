@@ -7,6 +7,7 @@ internal object AnimationImporter {
         val version = bytes[0].toInt() and 0xFF
         return when (version) {
             0 -> importV0(bytes)
+            1 -> importV1(bytes)
             else -> throw IllegalStateException("Unknown sprite version")
         }
     }
@@ -31,6 +32,33 @@ internal object AnimationImporter {
                 offsetX = offsetX,
                 offsetY = offestY,
                 paletteIndex = 0,
+            )
+            frames.add(frame)
+        }
+        return Animation(frames, width, height)
+    }
+
+    private fun importV1(bytes: List<Byte>): Animation {
+        var index = 1
+
+        val width = bytes[index++].toInt() and 0xFF
+        val height = bytes[index++].toInt() and 0xFF
+
+        val frameCount = bytes[index++].toInt() and 0xFF
+
+        val frames = mutableListOf<Animation.Frame>()
+        for (i in 0 until frameCount) {
+            val spriteFrameIndex = bytes[index + i * 6].toInt() and 0xFF
+            val offsetXBytes = bytes.subList(index + 1 + i * 6, index + 3 + i * 6)
+            val offsetX = offsetXBytes.toSignedInt()
+            val offsetYBytes = bytes.subList(index + 3 + i * 6, index + 5 + i * 6)
+            val offestY = offsetYBytes.toSignedInt()
+            val paletteIndex = bytes[index + 5 + i * 6].toInt() and 0xFF
+            val frame = Animation.Frame(
+                spriteFrameIndex = spriteFrameIndex,
+                offsetX = offsetX,
+                offsetY = offestY,
+                paletteIndex = paletteIndex,
             )
             frames.add(frame)
         }

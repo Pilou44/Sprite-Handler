@@ -130,7 +130,7 @@ internal class AnimationCreationViewModel: ViewModel() {
         // ToDo show loader
         viewModelScope.launch(Dispatchers.IO) {
             val animation = stateFlow.value.animation
-            val animationBytes = AnimationExporter.export(animation)
+            val animationBytes = AnimationExporter.exportV1(animation)
 
 
             val file = saveFileDialog() ?: return@launch

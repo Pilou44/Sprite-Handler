@@ -8,12 +8,13 @@ import kotlin.test.assertEquals
 
 class AnimationImporterTest {
     @Test
-    fun checkAnimationExportImport() {
+    fun checkAnimationExportImportV0() {
         val frame1 = Random(seed = 42).let { r ->
             Animation.Frame(
                 spriteFrameIndex = r.nextInt(0, 255),
                 offsetX = r.nextInt(-255, 255),
                 offsetY = r.nextInt(-255, 255),
+                paletteIndex = 0,
             )
         }
         val frame2 = Random(seed = 27).let { r ->
@@ -21,6 +22,7 @@ class AnimationImporterTest {
                 spriteFrameIndex = r.nextInt(0, 255),
                 offsetX = r.nextInt(-255, 255),
                 offsetY = r.nextInt(-255, 255),
+                paletteIndex = 0,
             )
         }
         val frame3 = Random(seed = 13).let { r ->
@@ -28,12 +30,49 @@ class AnimationImporterTest {
                 spriteFrameIndex = r.nextInt(0, 255),
                 offsetX = r.nextInt(-255, 255),
                 offsetY = r.nextInt(-255, 255),
+                paletteIndex = 0,
             )
         }
         val sourceFrames = listOf(frame1, frame2, frame3)
         val sourceAnimation = Animation(sourceFrames, 48, 48)
 
-        val bytes = AnimationExporter.export(sourceAnimation)
+        val bytes = AnimationExporter.exportV0(sourceAnimation)
+        val resultAnimation = AnimationImporter.import(bytes)
+
+        assertEquals(sourceAnimation.frames, resultAnimation.frames)
+        assertEquals(sourceAnimation, resultAnimation)
+    }
+
+    @Test
+    fun checkAnimationExportImportV1() {
+        val frame1 = Random(seed = 42).let { r ->
+            Animation.Frame(
+                spriteFrameIndex = r.nextInt(0, 255),
+                offsetX = r.nextInt(-255, 255),
+                offsetY = r.nextInt(-255, 255),
+                paletteIndex = 0,
+            )
+        }
+        val frame2 = Random(seed = 27).let { r ->
+            Animation.Frame(
+                spriteFrameIndex = r.nextInt(0, 255),
+                offsetX = r.nextInt(-255, 255),
+                offsetY = r.nextInt(-255, 255),
+                paletteIndex = 1,
+            )
+        }
+        val frame3 = Random(seed = 13).let { r ->
+            Animation.Frame(
+                spriteFrameIndex = r.nextInt(0, 255),
+                offsetX = r.nextInt(-255, 255),
+                offsetY = r.nextInt(-255, 255),
+                paletteIndex = 0,
+            )
+        }
+        val sourceFrames = listOf(frame1, frame2, frame3)
+        val sourceAnimation = Animation(sourceFrames, 48, 48)
+
+        val bytes = AnimationExporter.exportV1(sourceAnimation)
         val resultAnimation = AnimationImporter.import(bytes)
 
         assertEquals(sourceAnimation.frames, resultAnimation.frames)
