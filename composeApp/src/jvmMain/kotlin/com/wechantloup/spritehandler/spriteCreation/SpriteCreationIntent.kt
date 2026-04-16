@@ -10,7 +10,6 @@ internal data class SelectImageIntent(
     val name: String,
     val selected: Boolean,
 ): SpriteCreationIntent
-internal data class GeneratePaletteIntent(
-    val selected: Boolean,
-): SpriteCreationIntent
+internal data object GeneratePaletteIntent: SpriteCreationIntent
+internal data object LoadPaletteIntent: SpriteCreationIntent
 internal data class ShowColorPickerIntent(val index: Int): SpriteCreationIntent
