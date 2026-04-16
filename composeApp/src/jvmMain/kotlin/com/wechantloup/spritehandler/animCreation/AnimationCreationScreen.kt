@@ -324,7 +324,7 @@ private fun SpriteBlock(
                 )
                 SpriteFrame(
                     frame = sprite.frames[index],
-                    palette = sprite.palette,
+                    palette = sprite.palettes[0],
                     width = sprite.width,
                     height = sprite.height,
                     spotSize = 2.dp,

@@ -101,7 +101,7 @@ internal class SpriteCreationViewModel: ViewModel() {
             is UnselectAllImagesIntent -> selectAllImages(false)
             is GeneratePaletteIntent -> generatePalette()
             is LoadPaletteIntent -> loadPaletteFromFile()
-            is ShowColorPickerIntent -> showColorPicker(intent.index)
+            is ShowColorPickerIntent -> showColorPicker(intent.colorIndex, intent.paletteIndex)
             is GenerateSpriteIntent -> showGenerationDialog()
         }
     }
@@ -129,14 +129,15 @@ internal class SpriteCreationViewModel: ViewModel() {
         val bytes = file.readBytes().toList()
         val sprite = SpriteImporter.import(bytes)
         _stateFlow.value = stateFlow.value.copy(
-            palette = sprite.palette,
+            palettes = sprite.palettes,
         )
     }
 
     private fun generatePalette() {
         val images = stateFlow.value.images.filter { it.isSelected }
         val palette = SpriteUseCase.generatePalette(images)
-        _stateFlow.value = stateFlow.value.copy(palette = palette)
+        val palettes = listOf(palette)
+        _stateFlow.value = stateFlow.value.copy(palettes = palettes)
     }
 
     private fun showGenerationDialog() {
@@ -365,11 +366,12 @@ internal class SpriteCreationViewModel: ViewModel() {
 
         val job = viewModelScope.launch(Dispatchers.IO) {
             val images = stateFlow.value.images.filter { it.isSelected }
-            val palette = stateFlow.value.palette
+            val palettes = stateFlow.value.palettes
+            val firstPalette = palettes[0]
 
             logger.severe("Check palette")
             state.value = GenerationState.CHECKING_PALETTE
-            if (!SpriteUseCase.isPaletteValid(images, palette)) {
+            if (!SpriteUseCase.isPaletteValid(images, firstPalette)) {
                 logger.severe("Palette doesn't contain all colors")
                 state.value = GenerationState.ERROR
                 return@launch
@@ -380,7 +382,7 @@ internal class SpriteCreationViewModel: ViewModel() {
             val frames = try {
                 SpriteUseCase.generateSprite(
                     images = images,
-                    palette = palette,
+                    palette = firstPalette,
                     width = width,
                     height = height,
                     alignment = alignment,
@@ -396,11 +398,11 @@ internal class SpriteCreationViewModel: ViewModel() {
             val sprite = Sprite(
                 width = width,
                 height = height,
-                palette = palette,
+                palettes = palettes,
                 frames = frames,
             )
             bytes.value = try {
-                SpriteExporter.export(sprite)
+                SpriteExporter.exportV1(sprite)
             } catch (e: Exception) {
                 logger.severe("Error encoding information: ${e.printStackTrace()}")
                 state.value = GenerationState.ERROR
@@ -472,8 +474,8 @@ internal class SpriteCreationViewModel: ViewModel() {
         return file
     }
 
-    private fun showColorPicker(index: Int) {
-        val color = Color(stateFlow.value.palette.colors[index + 1])
+    private fun showColorPicker(colorIndex: Int, paletteIndex: Int) {
+        val color = Color(stateFlow.value.palettes[paletteIndex].colors[colorIndex])
         var red by mutableStateOf((color.red * 255).toInt().toString())
         var green by mutableStateOf((color.green * 255).toInt().toString())
         var blue by mutableStateOf((color.blue * 255).toInt().toString())
@@ -530,12 +532,14 @@ internal class SpriteCreationViewModel: ViewModel() {
                     blue = blue.toIntOrNull()?.coerceIn(0, 255) ?: 0,
                     alpha = 255,
                 )
-                val palette = _stateFlow.value.palette
+                val palettes = _stateFlow.value.palettes.toMutableList()
+                val palette = palettes.removeAt(paletteIndex)
                 val colors = palette.colors.toMutableList()
-                colors[index  + 1] = newColor.toArgb()
+                colors[colorIndex] = newColor.toArgb()
                 val newPalette = palette.copy(colors = colors)
+                palettes.add(paletteIndex, newPalette)
                 _stateFlow.value = stateFlow.value.copy(
-                    palette = newPalette,
+                    palettes = palettes,
                     dialog = ClosedDialogState,
                 )
             },

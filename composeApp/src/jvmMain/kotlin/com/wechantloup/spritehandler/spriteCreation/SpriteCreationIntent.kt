@@ -12,4 +12,4 @@ internal data class SelectImageIntent(
 ): SpriteCreationIntent
 internal data object GeneratePaletteIntent: SpriteCreationIntent
 internal data object LoadPaletteIntent: SpriteCreationIntent
-internal data class ShowColorPickerIntent(val index: Int): SpriteCreationIntent
+internal data class ShowColorPickerIntent(val colorIndex: Int, val paletteIndex: Int): SpriteCreationIntent

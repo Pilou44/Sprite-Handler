@@ -8,7 +8,7 @@ import com.wechantloup.spritehandler.model.Palette
 internal data class SpriteCreationState(
     val folderName: String = "",
     val images: List<Image> = emptyList(),
-    val palette: Palette = Palette(),
+    val palettes: List<Palette> = listOf(Palette()),
     val dialog: DialogState = ClosedDialogState,
 ) {
     val selectedImageCount: Int

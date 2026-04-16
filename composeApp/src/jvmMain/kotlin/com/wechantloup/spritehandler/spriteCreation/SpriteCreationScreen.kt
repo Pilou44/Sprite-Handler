@@ -118,7 +118,7 @@ internal fun SpriteCreationScreen(
                         )
                         HorizontalDivider()
                         PaletteBlock(
-                            palette = state.palette,
+                            palettes = state.palettes,
                             sendIntent = sendIntent,
                             modifier = Modifier.padding(vertical = 16.dp)
                         )
@@ -164,7 +164,7 @@ private fun FolderDescriptionBlock(
 }
 @Composable
 private fun PaletteBlock(
-    palette: Palette,
+    palettes: List<Palette>,
     sendIntent: (SpriteCreationIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -184,7 +184,7 @@ private fun PaletteBlock(
             }
         }
         ColorPalette(
-            palette = palette,
+            palette = palettes[0],
             sendIntent = sendIntent,
         )
     }
@@ -203,7 +203,7 @@ private fun ColorPalette(
         for (i in 0 until 15) {
             ColorPicker(
                 colorArgb = palette.colors[i + 1],
-                onClick = { sendIntent(ShowColorPickerIntent(i)) },
+                onClick = { sendIntent(ShowColorPickerIntent(colorIndex = i + 1, paletteIndex = 0)) },
             )
         }
     }

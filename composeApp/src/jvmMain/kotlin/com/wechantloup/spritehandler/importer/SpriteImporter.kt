@@ -9,6 +9,7 @@ internal object SpriteImporter {
         val version = bytes[0].toInt() and 0xFF
         return when (version) {
             0 -> importV0(bytes)
+            1 -> importV1(bytes)
             else -> throw IllegalStateException("Unknown sprite version")
         }
     }
@@ -37,7 +38,40 @@ internal object SpriteImporter {
         return Sprite(
             width = width,
             height = height,
-            palette = palette,
+            palettes = listOf(palette),
+            frames = frames,
+        )
+    }
+
+    private fun importV1(bytes: List<Byte>): Sprite {
+        var index = 1
+        val width = bytes[index++].toInt() and 0xFF
+        val height = bytes[index++].toInt() and 0xFF
+
+        val paletteCount = bytes[index++].toInt() and 0xFF
+        val palettes = (0 until paletteCount).map {
+            val colors = (0 until 16).map { i ->
+                val byteColor = bytes.subList(index + 4 * i, index + 4 * (i + 1))
+                byteColor.toInt()
+            }
+            index += 4 * 16
+            Palette(colors)
+        }
+
+        val imageCount = bytes[index++].toInt() and 0xFF
+
+        val imageSize = width * height
+        val pixelCount = imageSize * imageCount
+        val pixelBytes = bytes.subList(index, bytes.size)
+        val pixels = pixelBytes.toNibbles(pixelCount)
+        val frames = (0 until imageCount).map {
+            pixels.subList(it * imageSize, (it + 1) * imageSize)
+        }
+
+        return Sprite(
+            width = width,
+            height = height,
+            palettes = palettes,
             frames = frames,
         )
     }
