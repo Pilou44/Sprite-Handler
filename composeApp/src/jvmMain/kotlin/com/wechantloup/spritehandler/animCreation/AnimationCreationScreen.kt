@@ -218,7 +218,7 @@ private fun AnimationFrame(
                 value = frameIndexStr,
                 onValueChange = {
                     if (it.all { c -> c.isDigit() }) frameIndexStr = it
-                    val frameIndex = frameIndexStr.toIntOrNull()?.coerceIn(0, 255)
+                    val frameIndex = frameIndexStr.toIntOrNull()?.coerceIn(0, sprite.frames.lastIndex)
                     frameIndex?.let { sendIntent(SetSpriteFrameIntent(index, frameIndex)) }
                 }
             )
