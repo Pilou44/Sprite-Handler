@@ -24,6 +24,7 @@ internal fun AnimationFrame(
     animWidth: Int,
     animHeight: Int,
     modifier: Modifier = Modifier,
+    brightness: Float = 1f,
     spotSize: Dp = 16.dp,
     diffuserBlur: Dp = spotSize * 0.5f,
     diffuserStrength: Float = 0.5f,
@@ -40,9 +41,12 @@ internal fun AnimationFrame(
             offsetY = frame.offsetY,
         )
     }
+    val palette = remember(frame.paletteIndex, brightness) {
+        sprite.palettes[frame.paletteIndex].applyBrightness(brightness)
+    }
     SpriteFrame(
         frame = pixels,
-        palette = sprite.palettes[frame.paletteIndex],
+        palette = palette,
         width = animWidth,
         height = animHeight,
         spotSize = spotSize,
@@ -157,4 +161,16 @@ private fun applyOffset(
             0
         }
     }
+}
+
+fun Palette.applyBrightness(brightness: Float): Palette {
+    if (brightness == 1f) return this
+    val dimmedColors = colors.map { argb ->
+        val a = (argb ushr 24) and 0xFF
+        val r = ((argb ushr 16) and 0xFF) * brightness
+        val g = ((argb ushr 8) and 0xFF) * brightness
+        val b = (argb and 0xFF) * brightness
+        (a shl 24) or (r.toInt() shl 16) or (g.toInt() shl 8) or b.toInt()
+    }
+    return Palette(dimmedColors)
 }
