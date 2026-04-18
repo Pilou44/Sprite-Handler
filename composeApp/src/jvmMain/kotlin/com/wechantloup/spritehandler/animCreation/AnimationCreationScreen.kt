@@ -23,13 +23,13 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
@@ -66,6 +66,8 @@ import org.jetbrains.compose.resources.stringResource
 import spritehandler.composeapp.generated.resources.Res
 import spritehandler.composeapp.generated.resources.animation_brightness_label
 import spritehandler.composeapp.generated.resources.animation_creation_screen_title
+import spritehandler.composeapp.generated.resources.animation_duration_label
+import spritehandler.composeapp.generated.resources.animation_duration_min_error
 import spritehandler.composeapp.generated.resources.animation_frame_index_label
 import spritehandler.composeapp.generated.resources.animation_horizontal_offset_label
 import spritehandler.composeapp.generated.resources.animation_palette_label
@@ -254,25 +256,10 @@ private fun AnimationFrameEditor(
                 modifier = Modifier.weight(1f),
             ) {
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    SpriteFrameStepper(
+                    SpriteFramePicker(
                         spriteFrameIndex = frame.spriteFrameIndex,
                         lastIndex = sprite.frames.lastIndex,
-                        onDecrement = {
-                            sendIntent(
-                                SetSpriteFrameIntent(
-                                    index,
-                                    (frame.spriteFrameIndex - 1).coerceAtLeast(0),
-                                )
-                            )
-                        },
-                        onIncrement = {
-                            sendIntent(
-                                SetSpriteFrameIntent(
-                                    index,
-                                    (frame.spriteFrameIndex + 1).coerceAtMost(sprite.frames.lastIndex),
-                                )
-                            )
-                        },
+                        onIndexChange = { sendIntent(SetSpriteFrameIntent(index, it)) },
                         modifier = Modifier.weight(1f),
                     )
                     BrightnessSlider(
@@ -350,37 +337,39 @@ private fun DurationField(
     onDurationChange: (Int) -> Unit,
 ) {
     var text by remember(durationMs) { mutableStateOf(durationMs.toString()) }
-    val isError = text.toIntOrNull()?.let { it < 40 } ?: false
 
     OutlinedTextField(
         value = text,
         onValueChange = { input ->
-            if (input.all { it.isDigit() }) {
-                text = input
-                input.toIntOrNull()?.let { v -> if (v >= 40) onDurationChange(v) }
-            }
+            if (input.all { it.isDigit() }) text = input
+            input.toIntOrNull()?.let { v -> if (v >= 40) onDurationChange(v) }
         },
         singleLine = true,
+        label = { Text(stringResource(Res.string.animation_duration_label)) },
         suffix = { Text("ms") },
-        isError = isError,
-        // Pas de label ni de supportingText pour rester compact
+        isError = text.toIntOrNull()?.let { it < 40 } ?: true,
+        supportingText = {
+            if (text.toIntOrNull()?.let { it < 40 } == true) {
+                Text(stringResource(Res.string.animation_duration_min_error))
+            }
+        },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-        modifier = Modifier.width(120.dp),
+        modifier = Modifier.width(130.dp),
         textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.End),
     )
 }
 
-// ─── Stepper frame sprite ─────────────────────────────────────────────────────
-// Remplace le TextField : plus compact pour une plage bornée (0–N).
+// ─── Frame du sprite ──────────────────────────────────────────────────────────
 
 @Composable
-private fun SpriteFrameStepper(
+private fun SpriteFramePicker(
     spriteFrameIndex: Int,
     lastIndex: Int,
-    onDecrement: () -> Unit,
-    onIncrement: () -> Unit,
+    onIndexChange: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    var text by remember(spriteFrameIndex) { mutableStateOf(spriteFrameIndex.toString()) }
+
     Column(
         verticalArrangement = Arrangement.spacedBy(4.dp),
         modifier = modifier,
@@ -390,12 +379,18 @@ private fun SpriteFrameStepper(
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        CompactStepper(
-            label = "$spriteFrameIndex / $lastIndex",
-            onDecrement = onDecrement,
-            onIncrement = onIncrement,
-            decrementEnabled = spriteFrameIndex > 0,
-            incrementEnabled = spriteFrameIndex < lastIndex,
+        OutlinedTextField(
+            value = text,
+            onValueChange = { input ->
+                if (input.all { it.isDigit() }) text = input
+                input.toIntOrNull()
+                    ?.coerceIn(0, lastIndex)
+                    ?.let { onIndexChange(it) }
+            },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            supportingText = { Text("0 – $lastIndex") },
+            modifier = Modifier.fillMaxWidth(),
         )
     }
 }
@@ -463,7 +458,7 @@ private fun PalettePicker(
                 shape = MaterialTheme.shapes.extraSmall,
                 border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.outline),
                 modifier = Modifier
-                    .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+                    .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
                     .fillMaxWidth(),
             ) {
                 Row(
