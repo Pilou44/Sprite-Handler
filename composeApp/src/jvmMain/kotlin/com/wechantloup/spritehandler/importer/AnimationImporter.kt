@@ -1,6 +1,7 @@
 package com.wechantloup.spritehandler.importer
 
 import com.wechantloup.spritehandler.model.Animation
+import kotlin.math.roundToInt
 
 internal object AnimationImporter {
     fun import(bytes: List<Byte>): Animation {
@@ -8,6 +9,7 @@ internal object AnimationImporter {
         return when (version) {
             0 -> importV0(bytes)
             1 -> importV1(bytes)
+            2 -> importV2(bytes)
             else -> throw IllegalStateException("Unknown sprite version")
         }
     }
@@ -32,6 +34,8 @@ internal object AnimationImporter {
                 offsetX = offsetX,
                 offsetY = offestY,
                 paletteIndex = 0,
+                durationMs = 100,
+                brightness = 1f,
             )
             frames.add(frame)
         }
@@ -59,6 +63,40 @@ internal object AnimationImporter {
                 offsetX = offsetX,
                 offsetY = offestY,
                 paletteIndex = paletteIndex,
+                durationMs = 100,
+                brightness = 1f,
+            )
+            frames.add(frame)
+        }
+        return Animation(frames, width, height)
+    }
+
+    private fun importV2(bytes: List<Byte>): Animation {
+        var index = 1
+
+        val width = bytes[index++].toInt() and 0xFF
+        val height = bytes[index++].toInt() and 0xFF
+
+        val frameCount = bytes[index++].toInt() and 0xFF
+
+        val frames = mutableListOf<Animation.Frame>()
+        for (i in 0 until frameCount) {
+            val spriteFrameIndex = bytes[index + i * 8].toInt() and 0xFF
+            val offsetXBytes = bytes.subList(index + 1 + i * 8, index + 3 + i * 8)
+            val offsetX = offsetXBytes.toSignedInt()
+            val offsetYBytes = bytes.subList(index + 3 + i * 8, index + 5 + i * 8)
+            val offestY = offsetYBytes.toSignedInt()
+            val paletteIndex = bytes[index + 5 + i * 8].toInt() and 0xFF
+            val durationMs = bytes[index + 6 + i * 8].toInt() and 0xFF
+            val brightnessByte = bytes[index + 7 + i * 8]
+            val brightness = ((brightnessByte.toInt() and 0xFF) / 255f * 100).roundToInt() / 100f
+            val frame = Animation.Frame(
+                spriteFrameIndex = spriteFrameIndex,
+                offsetX = offsetX,
+                offsetY = offestY,
+                paletteIndex = paletteIndex,
+                durationMs = durationMs,
+                brightness = brightness,
             )
             frames.add(frame)
         }

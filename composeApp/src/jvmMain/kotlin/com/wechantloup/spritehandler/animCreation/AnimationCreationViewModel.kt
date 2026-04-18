@@ -132,7 +132,7 @@ internal class AnimationCreationViewModel: ViewModel() {
         // ToDo show loader
         viewModelScope.launch(Dispatchers.IO) {
             val animation = stateFlow.value.animation
-            val animationBytes = AnimationExporter.exportV1(animation)
+            val animationBytes = AnimationExporter.exportV2(animation)
 
 
             val file = saveFileDialog() ?: return@launch
@@ -170,7 +170,9 @@ internal class AnimationCreationViewModel: ViewModel() {
             spriteFrameIndex = 0,
             offsetX = 0,
             offsetY = 0,
-            paletteIndex = 0
+            paletteIndex = 0,
+            durationMs = 100,
+            brightness = 1f,
         ))
         val newAnimation = animation.copy(frames = frames)
         _stateFlow.value = stateFlow.value.copy(
