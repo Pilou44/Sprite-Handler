@@ -66,7 +66,7 @@ internal class AnimationCreationViewModel: ViewModel() {
             is SetSpriteFrameIntent -> setSpriteFrame(intent.animationIndex, intent.spriteFrameIndex)
             is PreviewIntent -> showPreview()
             is SetAnimationSizeIntent -> setAnimationSize(intent.width, intent.height)
-            is SetFramePaletteIntent -> setFramePalette(intent.frameIndex, intent.paletteIndex)
+            is SetPaletteIntent -> setFramePalette(intent.frameIndex, intent.paletteIndex)
             is SetBrightnessIntent -> TODO()
             is SetDurationIntent -> TODO()
         }

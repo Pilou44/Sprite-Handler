@@ -1,11 +1,14 @@
 package com.wechantloup.spritehandler.animCreation
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -16,23 +19,21 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.FilledTonalIconButton
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -45,6 +46,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -64,8 +66,6 @@ import org.jetbrains.compose.resources.stringResource
 import spritehandler.composeapp.generated.resources.Res
 import spritehandler.composeapp.generated.resources.animation_brightness_label
 import spritehandler.composeapp.generated.resources.animation_creation_screen_title
-import spritehandler.composeapp.generated.resources.animation_duration_label
-import spritehandler.composeapp.generated.resources.animation_duration_min_error
 import spritehandler.composeapp.generated.resources.animation_frame_index_label
 import spritehandler.composeapp.generated.resources.animation_horizontal_offset_label
 import spritehandler.composeapp.generated.resources.animation_palette_label
@@ -199,7 +199,7 @@ private fun AnimationBlock(
                 verticalArrangement = Arrangement.spacedBy(verticalPadding),
             ) {
                 AddFrameButton { sendIntent(AddAnimationFrameIntent(index)) }
-                AnimationFrame(
+                AnimationFrameEditor(
                     frame = animation.frames[index],
                     index = index,
                     animWidth = animation.width,
@@ -216,7 +216,7 @@ private fun AnimationBlock(
 }
 
 @Composable
-private fun AnimationFrame(
+private fun AnimationFrameEditor(
     frame: Animation.Frame,
     index: Int,
     animWidth: Int,
@@ -238,24 +238,41 @@ private fun AnimationFrame(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier.padding(12.dp),
         ) {
-            // Colonne gauche : aperçu animé
-            AnimationFramePreview(
+            // Colonne gauche : aperçu pixel
+            // ↓ Appel de TON composable existant (renderer pixel), pas récursif
+            AnimationFrame(
                 frame = frame,
                 sprite = sprite,
                 animWidth = animWidth,
                 animHeight = animHeight,
+                spotSize = 2.dp,
             )
 
-            // Colonne droite : tous les contrôles
+            // Colonne droite : contrôles
             Column(
-                verticalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
                 modifier = Modifier.weight(1f),
             ) {
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    SpriteFramePicker(
+                    SpriteFrameStepper(
                         spriteFrameIndex = frame.spriteFrameIndex,
                         lastIndex = sprite.frames.lastIndex,
-                        onIndexChange = { sendIntent(SetSpriteFrameIntent(index, it)) },
+                        onDecrement = {
+                            sendIntent(
+                                SetSpriteFrameIntent(
+                                    index,
+                                    (frame.spriteFrameIndex - 1).coerceAtLeast(0),
+                                )
+                            )
+                        },
+                        onIncrement = {
+                            sendIntent(
+                                SetSpriteFrameIntent(
+                                    index,
+                                    (frame.spriteFrameIndex + 1).coerceAtMost(sprite.frames.lastIndex),
+                                )
+                            )
+                        },
                         modifier = Modifier.weight(1f),
                     )
                     BrightnessSlider(
@@ -297,7 +314,7 @@ private fun AnimationFrame(
     }
 }
 
-// ─── Header : numéro de frame + durée ────────────────────────────────────────
+// ─── Header ───────────────────────────────────────────────────────────────────
 
 @Composable
 private fun FrameHeader(
@@ -325,7 +342,7 @@ private fun FrameHeader(
     }
 }
 
-// ─── Durée ────────────────────────────────────────────────────────────────────
+// ─── Durée (TextField compact, width fixe) ───────────────────────────────────
 
 @Composable
 private fun DurationField(
@@ -333,63 +350,37 @@ private fun DurationField(
     onDurationChange: (Int) -> Unit,
 ) {
     var text by remember(durationMs) { mutableStateOf(durationMs.toString()) }
+    val isError = text.toIntOrNull()?.let { it < 40 } ?: false
 
     OutlinedTextField(
         value = text,
         onValueChange = { input ->
-            if (input.all { it.isDigit() }) text = input
-            input.toIntOrNull()?.let { v -> if (v >= 40) onDurationChange(v) }
-        },
-        singleLine = true,
-        label = { Text(stringResource(Res.string.animation_duration_label)) },
-        suffix = { Text("ms") },
-        isError = text.toIntOrNull()?.let { it < 40 } ?: true,
-        supportingText = {
-            if (text.toIntOrNull()?.let { it < 40 } == true) {
-                Text(stringResource(Res.string.animation_duration_min_error))
+            if (input.all { it.isDigit() }) {
+                text = input
+                input.toIntOrNull()?.let { v -> if (v >= 40) onDurationChange(v) }
             }
         },
+        singleLine = true,
+        suffix = { Text("ms") },
+        isError = isError,
+        // Pas de label ni de supportingText pour rester compact
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-        modifier = Modifier.width(130.dp),
+        modifier = Modifier.width(120.dp),
         textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.End),
     )
 }
 
-// ─── Aperçu ───────────────────────────────────────────────────────────────────
+// ─── Stepper frame sprite ─────────────────────────────────────────────────────
+// Remplace le TextField : plus compact pour une plage bornée (0–N).
 
 @Composable
-private fun AnimationFramePreview(
-    frame: Animation.Frame,
-    sprite: Sprite,
-    animWidth: Int,
-    animHeight: Int,
-) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        // Remplace par ton composable existant AnimationFrame(...)
-        AnimationFrame(
-            frame = frame,
-            sprite = sprite,
-            animWidth = animWidth,
-            animHeight = animHeight,
-            spotSize = 2.dp,
-        )
-    }
-}
-
-// ─── Frame du sprite ──────────────────────────────────────────────────────────
-
-@Composable
-private fun SpriteFramePicker(
+private fun SpriteFrameStepper(
     spriteFrameIndex: Int,
     lastIndex: Int,
-    onIndexChange: (Int) -> Unit,
+    onDecrement: () -> Unit,
+    onIncrement: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var text by remember(spriteFrameIndex) { mutableStateOf(spriteFrameIndex.toString()) }
-
     Column(
         verticalArrangement = Arrangement.spacedBy(4.dp),
         modifier = modifier,
@@ -399,18 +390,12 @@ private fun SpriteFramePicker(
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        OutlinedTextField(
-            value = text,
-            onValueChange = { input ->
-                if (input.all { it.isDigit() }) text = input
-                input.toIntOrNull()
-                    ?.coerceIn(0, lastIndex)
-                    ?.let { onIndexChange(it) }
-            },
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            supportingText = { Text("0 – $lastIndex") },
-            modifier = Modifier.fillMaxWidth(),
+        CompactStepper(
+            label = "$spriteFrameIndex / $lastIndex",
+            onDecrement = onDecrement,
+            onIncrement = onIncrement,
+            decrementEnabled = spriteFrameIndex > 0,
+            incrementEnabled = spriteFrameIndex < lastIndex,
         )
     }
 }
@@ -427,28 +412,27 @@ private fun BrightnessSlider(
         verticalArrangement = Arrangement.spacedBy(4.dp),
         modifier = modifier,
     ) {
-        Text(
-            text = stringResource(Res.string.animation_brightness_label),
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
         Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth(),
         ) {
-            Slider(
-                value = brightness,
-                onValueChange = onBrightnessChange,
-                valueRange = 0f..1f,
-                modifier = Modifier.weight(1f),
+            Text(
+                text = stringResource(Res.string.animation_brightness_label),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Text(
                 text = "%.2f".format(brightness),
-                style = MaterialTheme.typography.bodySmall,
-                textAlign = TextAlign.End,
-                modifier = Modifier.width(36.dp),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
+        Slider(
+            value = brightness,
+            onValueChange = onBrightnessChange,
+            valueRange = 0f..1f,
+            modifier = Modifier.fillMaxWidth(),
+        )
     }
 }
 
@@ -474,25 +458,30 @@ private fun PalettePicker(
             expanded = expanded,
             onExpandedChange = { expanded = it },
         ) {
-            OutlinedTextField(
-                value = paletteIndex.toString(),
-                onValueChange = {},
-                readOnly = true,
-                singleLine = true,
-                leadingIcon = {
-                    if (palettes.isNotEmpty()) {
-                        PaletteStrip(
-                            palette = palettes[paletteIndex],
-                            swatchSize = 12.dp,
-                        )
-                    }
-                },
-                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
-                colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+            // Bouton fermé : même rendu qu'un item du menu
+            Surface(
+                shape = MaterialTheme.shapes.extraSmall,
+                border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.outline),
                 modifier = Modifier
                     .menuAnchor(MenuAnchorType.PrimaryNotEditable)
                     .fillMaxWidth(),
-            )
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                ) {
+                    palettes.getOrNull(paletteIndex)?.let { palette ->
+                        PaletteRowContent(
+                            index = paletteIndex,
+                            palette = palette,
+                            selected = false,
+                        )
+                    }
+                    Spacer(Modifier.weight(1f))
+                    ExposedDropdownMenuDefaults.TrailingIcon(expanded)
+                }
+            }
+
             ExposedDropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { expanded = false },
@@ -500,21 +489,14 @@ private fun PalettePicker(
                 palettes.forEachIndexed { index, palette ->
                     DropdownMenuItem(
                         text = {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            ) {
-                                Text(
-                                    text = index.toString(),
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.width(20.dp),
-                                )
-                                PaletteStrip(palette = palette, swatchSize = 14.dp)
-                            }
+                            PaletteRowContent(
+                                index = index,
+                                palette = palette,
+                                selected = index == paletteIndex,
+                            )
                         },
                         onClick = {
-                            sendIntent(SetFramePaletteIntent(frameIndex, index))
+                            sendIntent(SetPaletteIntent(frameIndex, index))
                             expanded = false
                         },
                         contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
@@ -525,7 +507,29 @@ private fun PalettePicker(
     }
 }
 
-// ─── Bande de couleurs d'une palette ─────────────────────────────────────────
+// Contenu partagé : index + bande de couleurs
+@Composable
+private fun PaletteRowContent(
+    index: Int,
+    palette: Palette,
+    selected: Boolean,
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Text(
+            text = index.toString(),
+            style = MaterialTheme.typography.labelSmall,
+            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.width(20.dp),
+        )
+        PaletteStrip(palette = palette, swatchSize = 12.dp)
+    }
+}
+
+// ─── Bande de couleurs ────────────────────────────────────────────────────────
 
 @Composable
 private fun PaletteStrip(
@@ -537,7 +541,9 @@ private fun PaletteStrip(
             Box(
                 modifier = Modifier
                     .size(width = swatchSize, height = swatchSize * 1.4f)
-                    // Color(Int) interprète directement le packed ARGB
+                    // Color(Int) fonctionne directement avec un ARGB packed.
+                    // Si tes couleurs sont en RGB sans alpha, utilise :
+                    // Color(colorInt or (0xFF shl 24))
                     .background(
                         color = Color(colorInt),
                         shape = RoundedCornerShape(2.dp),
@@ -547,7 +553,7 @@ private fun PaletteStrip(
     }
 }
 
-// ─── Stepper offset ───────────────────────────────────────────────────────────
+// ─── Offset ───────────────────────────────────────────────────────────────────
 
 @Composable
 private fun OffsetControl(
@@ -566,33 +572,52 @@ private fun OffsetControl(
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
+        CompactStepper(
+            label = value.toString(),
+            onDecrement = onDecrement,
+            onIncrement = onIncrement,
+        )
+    }
+}
+
+// ─── Stepper réutilisable ─────────────────────────────────────────────────────
+// Texte "−" / "+" au lieu d'icônes pour éviter material-icons-extended.
+
+@Composable
+private fun CompactStepper(
+    label: String,
+    onDecrement: () -> Unit,
+    onIncrement: () -> Unit,
+    decrementEnabled: Boolean = true,
+    incrementEnabled: Boolean = true,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        modifier = modifier,
+    ) {
+        FilledTonalButton(
+            onClick = onDecrement,
+            enabled = decrementEnabled,
+            contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp),
+            modifier = Modifier.defaultMinSize(minWidth = 36.dp, minHeight = 36.dp),
         ) {
-            FilledTonalIconButton(
-                onClick = onDecrement,
-                modifier = Modifier.size(32.dp),
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Remove,
-                    contentDescription = "-1",
-                )
-            }
-            Text(
-                text = value.toString(),
-                textAlign = TextAlign.Center,
-                modifier = Modifier.weight(1f),
-            )
-            FilledTonalIconButton(
-                onClick = onIncrement,
-                modifier = Modifier.size(32.dp),
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "+1",
-                )
-            }
+            Text(text = "−", style = MaterialTheme.typography.labelLarge)
+        }
+        Text(
+            text = label,
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.weight(1f),
+        )
+        FilledTonalButton(
+            onClick = onIncrement,
+            enabled = incrementEnabled,
+            contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp),
+            modifier = Modifier.defaultMinSize(minWidth = 36.dp, minHeight = 36.dp),
+        ) {
+            Text(text = "+", style = MaterialTheme.typography.labelLarge)
         }
     }
 }
