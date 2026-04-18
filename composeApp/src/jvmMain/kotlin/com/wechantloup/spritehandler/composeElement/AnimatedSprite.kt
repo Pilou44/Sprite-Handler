@@ -24,7 +24,6 @@ internal fun AnimationFrame(
     animWidth: Int,
     animHeight: Int,
     modifier: Modifier = Modifier,
-    brightness: Float = 1f,
     spotSize: Dp = 16.dp,
     diffuserBlur: Dp = spotSize * 0.5f,
     diffuserStrength: Float = 0.5f,
@@ -41,8 +40,8 @@ internal fun AnimationFrame(
             offsetY = frame.offsetY,
         )
     }
-    val palette = remember(frame.paletteIndex, brightness) {
-        sprite.palettes[frame.paletteIndex].applyBrightness(brightness)
+    val palette = remember(frame.paletteIndex, frame.brightness) {
+        sprite.palettes[frame.paletteIndex].applyBrightness(frame.brightness)
     }
     SpriteFrame(
         frame = pixels,

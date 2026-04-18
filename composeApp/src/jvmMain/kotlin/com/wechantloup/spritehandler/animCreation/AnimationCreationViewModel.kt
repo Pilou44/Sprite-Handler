@@ -67,9 +67,39 @@ internal class AnimationCreationViewModel: ViewModel() {
             is PreviewIntent -> showPreview()
             is SetAnimationSizeIntent -> setAnimationSize(intent.width, intent.height)
             is SetPaletteIntent -> setFramePalette(intent.frameIndex, intent.paletteIndex)
-            is SetBrightnessIntent -> TODO()
-            is SetDurationIntent -> TODO()
+            is SetBrightnessIntent -> setFrameBrightness(intent.frameIndex, intent.brightness)
+            is SetDurationIntent -> setFrameDuration(intent.frameIndex, intent.durationMs)
         }
+    }
+
+    private fun setFrameBrightness(
+        frameIndex: Int,
+        brightness: Float,
+    ) {
+        val animation = stateFlow.value.animation
+        val frames = animation.frames.toMutableList()
+        val frame = frames.removeAt(frameIndex)
+        val newFrame = frame.copy(brightness = brightness)
+        frames.add(frameIndex, newFrame)
+        val newAnimation = animation.copy(frames = frames)
+        _stateFlow.value = stateFlow.value.copy(
+            animation = newAnimation,
+        )
+    }
+
+    private fun setFrameDuration(
+        frameIndex: Int,
+        durationMs: Int,
+    ) {
+        val animation = stateFlow.value.animation
+        val frames = animation.frames.toMutableList()
+        val frame = frames.removeAt(frameIndex)
+        val newFrame = frame.copy(durationMs = durationMs)
+        frames.add(frameIndex, newFrame)
+        val newAnimation = animation.copy(frames = frames)
+        _stateFlow.value = stateFlow.value.copy(
+            animation = newAnimation,
+        )
     }
 
     private fun setFramePalette(
@@ -110,7 +140,7 @@ internal class AnimationCreationViewModel: ViewModel() {
     ) {
         var frameIndex by remember { mutableIntStateOf(0) }
         LaunchedEffect(frameIndex) {
-            delay(100)
+            delay(animation.frames[frameIndex].durationMs.toLong())
             frameIndex = (frameIndex + 1) % animation.frames.size
         }
 
