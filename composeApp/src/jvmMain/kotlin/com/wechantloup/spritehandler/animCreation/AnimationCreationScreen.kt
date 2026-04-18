@@ -1,23 +1,38 @@
 package com.wechantloup.spritehandler.animCreation
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.FilledTonalIconButton
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuAnchorType
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -29,9 +44,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.wechantloup.spritehandler.composeElement.AnimationFrame
 import com.wechantloup.spritehandler.composeElement.SpriteFrame
 import com.wechantloup.spritehandler.composeElement.TopAppBar
@@ -45,8 +62,13 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import spritehandler.composeapp.generated.resources.Res
+import spritehandler.composeapp.generated.resources.animation_brightness_label
 import spritehandler.composeapp.generated.resources.animation_creation_screen_title
+import spritehandler.composeapp.generated.resources.animation_duration_label
+import spritehandler.composeapp.generated.resources.animation_duration_min_error
+import spritehandler.composeapp.generated.resources.animation_frame_index_label
 import spritehandler.composeapp.generated.resources.animation_horizontal_offset_label
+import spritehandler.composeapp.generated.resources.animation_palette_label
 import spritehandler.composeapp.generated.resources.animation_sprite_frame_index_label
 import spritehandler.composeapp.generated.resources.animation_vertical_offset_label
 import spritehandler.composeapp.generated.resources.back_btn_label
@@ -203,105 +225,234 @@ private fun AnimationFrame(
     sendIntent: (AnimationCreationIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = modifier,
-    ) {
-        Column(
-            modifier = Modifier.weight(1f),
-        ) {
-            Text(stringResource(Res.string.animation_sprite_frame_index_label))
+    Card(modifier = modifier.fillMaxWidth()) {
+        FrameHeader(
+            index = index,
+            durationMs = frame.durationMs,
+            onDurationChange = { sendIntent(SetDurationIntent(index, it)) },
+        )
 
-            var frameIndexStr by remember(frame.spriteFrameIndex) { mutableStateOf(frame.spriteFrameIndex.toString()) }
-            TextField(
-                value = frameIndexStr,
-                onValueChange = {
-                    if (it.all { c -> c.isDigit() }) frameIndexStr = it
-                    val frameIndex = frameIndexStr.toIntOrNull()?.coerceIn(0, sprite.frames.lastIndex)
-                    frameIndex?.let { sendIntent(SetSpriteFrameIntent(index, frameIndex)) }
-                }
-            )
-        }
-        Column(
-            modifier = Modifier.weight(1f),
-        ) {
-            Text(
-                text = stringResource(Res.string.animation_horizontal_offset_label),
-                fontSize = 12.sp,
-            )
+        HorizontalDivider()
 
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Button(
-                    onClick = { sendIntent(SetHorizontalOffsetIntent(index, -1)) },
-                    contentPadding = PaddingValues(2.dp),
-                    modifier = Modifier.defaultMinSize(minWidth = 1.dp, minHeight = 1.dp),
-                ) {
-                    Text("-1")
-                }
-                Text(
-                    text = frame.offsetX.toString(),
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.width(48.dp),
-                )
-                Button(
-                    onClick = { sendIntent(SetHorizontalOffsetIntent(index, 1)) },
-                    contentPadding = PaddingValues(2.dp),
-                    modifier = Modifier.defaultMinSize(minWidth = 1.dp, minHeight = 1.dp),
-                ) {
-                    Text("+1")
-                }
-            }
-            Text(
-                text = stringResource(Res.string.animation_vertical_offset_label),
-                fontSize = 12.sp,
-            )
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Button(
-                    onClick = { sendIntent(SetVerticalOffsetIntent(index, -1)) },
-                    contentPadding = PaddingValues(2.dp),
-                    modifier = Modifier.defaultMinSize(minWidth = 1.dp, minHeight = 1.dp),
-                ) {
-                    Text("-1")
-                }
-                Text(
-                    text = frame.offsetY.toString(),
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.width(48.dp),
-                )
-                Button(
-                    onClick = { sendIntent(SetVerticalOffsetIntent(index, 1)) },
-                    contentPadding = PaddingValues(2.dp),
-                    modifier = Modifier.defaultMinSize(minWidth = 1.dp, minHeight = 1.dp),
-                ) {
-                    Text("+1")
-                }
-            }
-        }
-        Column(
-            modifier = Modifier.weight(1f),
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.padding(12.dp),
         ) {
-            AnimationFrame(
+            // Colonne gauche : aperçu animé
+            AnimationFramePreview(
                 frame = frame,
                 sprite = sprite,
                 animWidth = animWidth,
                 animHeight = animHeight,
-                spotSize = 2.dp,
             )
-            PalettePicker(
-                frameIndex = index,
-                paletteIndex = frame.paletteIndex,
-                palettes = sprite.palettes,
-                sendIntent = sendIntent,
+
+            // Colonne droite : tous les contrôles
+            Column(
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.weight(1f),
+            ) {
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    SpriteFramePicker(
+                        spriteFrameIndex = frame.spriteFrameIndex,
+                        lastIndex = sprite.frames.lastIndex,
+                        onIndexChange = { sendIntent(SetSpriteFrameIntent(index, it)) },
+                        modifier = Modifier.weight(1f),
+                    )
+                    BrightnessSlider(
+                        brightness = frame.brightness,
+                        onBrightnessChange = { sendIntent(SetBrightnessIntent(index, it)) },
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+
+                HorizontalDivider()
+
+                PalettePicker(
+                    frameIndex = index,
+                    paletteIndex = frame.paletteIndex,
+                    palettes = sprite.palettes,
+                    sendIntent = sendIntent,
+                )
+
+                HorizontalDivider()
+
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    OffsetControl(
+                        label = stringResource(Res.string.animation_horizontal_offset_label),
+                        value = frame.offsetX,
+                        onDecrement = { sendIntent(SetHorizontalOffsetIntent(index, -1)) },
+                        onIncrement = { sendIntent(SetHorizontalOffsetIntent(index, 1)) },
+                        modifier = Modifier.weight(1f),
+                    )
+                    OffsetControl(
+                        label = stringResource(Res.string.animation_vertical_offset_label),
+                        value = frame.offsetY,
+                        onDecrement = { sendIntent(SetVerticalOffsetIntent(index, -1)) },
+                        onIncrement = { sendIntent(SetVerticalOffsetIntent(index, 1)) },
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+            }
+        }
+    }
+}
+
+// ─── Header : numéro de frame + durée ────────────────────────────────────────
+
+@Composable
+private fun FrameHeader(
+    index: Int,
+    durationMs: Int,
+    onDurationChange: (Int) -> Unit,
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .padding(horizontal = 12.dp, vertical = 8.dp),
+    ) {
+        Text(
+            text = stringResource(Res.string.animation_frame_index_label, index),
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        DurationField(
+            durationMs = durationMs,
+            onDurationChange = onDurationChange,
+        )
+    }
+}
+
+// ─── Durée ────────────────────────────────────────────────────────────────────
+
+@Composable
+private fun DurationField(
+    durationMs: Int,
+    onDurationChange: (Int) -> Unit,
+) {
+    var text by remember(durationMs) { mutableStateOf(durationMs.toString()) }
+
+    OutlinedTextField(
+        value = text,
+        onValueChange = { input ->
+            if (input.all { it.isDigit() }) text = input
+            input.toIntOrNull()?.let { v -> if (v >= 40) onDurationChange(v) }
+        },
+        singleLine = true,
+        label = { Text(stringResource(Res.string.animation_duration_label)) },
+        suffix = { Text("ms") },
+        isError = text.toIntOrNull()?.let { it < 40 } ?: true,
+        supportingText = {
+            if (text.toIntOrNull()?.let { it < 40 } == true) {
+                Text(stringResource(Res.string.animation_duration_min_error))
+            }
+        },
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        modifier = Modifier.width(130.dp),
+        textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.End),
+    )
+}
+
+// ─── Aperçu ───────────────────────────────────────────────────────────────────
+
+@Composable
+private fun AnimationFramePreview(
+    frame: Animation.Frame,
+    sprite: Sprite,
+    animWidth: Int,
+    animHeight: Int,
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        // Remplace par ton composable existant AnimationFrame(...)
+        AnimationFrame(
+            frame = frame,
+            sprite = sprite,
+            animWidth = animWidth,
+            animHeight = animHeight,
+            spotSize = 2.dp,
+        )
+    }
+}
+
+// ─── Frame du sprite ──────────────────────────────────────────────────────────
+
+@Composable
+private fun SpriteFramePicker(
+    spriteFrameIndex: Int,
+    lastIndex: Int,
+    onIndexChange: (Int) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    var text by remember(spriteFrameIndex) { mutableStateOf(spriteFrameIndex.toString()) }
+
+    Column(
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+        modifier = modifier,
+    ) {
+        Text(
+            text = stringResource(Res.string.animation_sprite_frame_index_label),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        OutlinedTextField(
+            value = text,
+            onValueChange = { input ->
+                if (input.all { it.isDigit() }) text = input
+                input.toIntOrNull()
+                    ?.coerceIn(0, lastIndex)
+                    ?.let { onIndexChange(it) }
+            },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            supportingText = { Text("0 – $lastIndex") },
+            modifier = Modifier.fillMaxWidth(),
+        )
+    }
+}
+
+// ─── Luminosité ───────────────────────────────────────────────────────────────
+
+@Composable
+private fun BrightnessSlider(
+    brightness: Float,
+    onBrightnessChange: (Float) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+        modifier = modifier,
+    ) {
+        Text(
+            text = stringResource(Res.string.animation_brightness_label),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Slider(
+                value = brightness,
+                onValueChange = onBrightnessChange,
+                valueRange = 0f..1f,
+                modifier = Modifier.weight(1f),
+            )
+            Text(
+                text = "%.2f".format(brightness),
+                style = MaterialTheme.typography.bodySmall,
+                textAlign = TextAlign.End,
+                modifier = Modifier.width(36.dp),
             )
         }
     }
 }
+
+// ─── Palette picker ───────────────────────────────────────────────────────────
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -310,36 +461,136 @@ private fun PalettePicker(
     paletteIndex: Int,
     palettes: List<Palette>,
     sendIntent: (AnimationCreationIntent) -> Unit,
-    modifier: Modifier = Modifier,
 ) {
     var expanded by remember { mutableStateOf(false) }
-    var selectedText by remember(paletteIndex) { mutableStateOf("Palette $paletteIndex") }
 
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { expanded = it },
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Text(
+            text = stringResource(Res.string.animation_palette_label),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = { expanded = it },
+        ) {
+            OutlinedTextField(
+                value = paletteIndex.toString(),
+                onValueChange = {},
+                readOnly = true,
+                singleLine = true,
+                leadingIcon = {
+                    if (palettes.isNotEmpty()) {
+                        PaletteStrip(
+                            palette = palettes[paletteIndex],
+                            swatchSize = 12.dp,
+                        )
+                    }
+                },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
+                colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+                modifier = Modifier
+                    .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+                    .fillMaxWidth(),
+            )
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+            ) {
+                palettes.forEachIndexed { index, palette ->
+                    DropdownMenuItem(
+                        text = {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            ) {
+                                Text(
+                                    text = index.toString(),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.width(20.dp),
+                                )
+                                PaletteStrip(palette = palette, swatchSize = 14.dp)
+                            }
+                        },
+                        onClick = {
+                            sendIntent(SetFramePaletteIntent(frameIndex, index))
+                            expanded = false
+                        },
+                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+                    )
+                }
+            }
+        }
+    }
+}
+
+// ─── Bande de couleurs d'une palette ─────────────────────────────────────────
+
+@Composable
+private fun PaletteStrip(
+    palette: Palette,
+    swatchSize: Dp,
+) {
+    Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+        palette.colors.forEach { colorInt ->
+            Box(
+                modifier = Modifier
+                    .size(width = swatchSize, height = swatchSize * 1.4f)
+                    // Color(Int) interprète directement le packed ARGB
+                    .background(
+                        color = Color(colorInt),
+                        shape = RoundedCornerShape(2.dp),
+                    ),
+            )
+        }
+    }
+}
+
+// ─── Stepper offset ───────────────────────────────────────────────────────────
+
+@Composable
+private fun OffsetControl(
+    label: String,
+    value: Int,
+    onDecrement: () -> Unit,
+    onIncrement: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(4.dp),
         modifier = modifier,
     ) {
-        TextField(
-            value = selectedText,
-            onValueChange = {},
-            readOnly = true,
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
-            modifier = Modifier.menuAnchor()
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-
-        ExposedDropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
         ) {
-            palettes.forEachIndexed { index, palette ->
-                DropdownMenuItem(
-                    text = { Text("Palette $index") },
-                    onClick = {
-                        selectedText = "Palette $index"
-                        sendIntent(SetFramePalette(frameIndex, index))
-                        expanded = false
-                    }
+            FilledTonalIconButton(
+                onClick = onDecrement,
+                modifier = Modifier.size(32.dp),
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Remove,
+                    contentDescription = "-1",
+                )
+            }
+            Text(
+                text = value.toString(),
+                textAlign = TextAlign.Center,
+                modifier = Modifier.weight(1f),
+            )
+            FilledTonalIconButton(
+                onClick = onIncrement,
+                modifier = Modifier.size(32.dp),
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "+1",
                 )
             }
         }

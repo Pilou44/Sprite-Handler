@@ -35,6 +35,11 @@
     <string name="animation_creation_screen_title">Animation creation</string>
     <string name="select_sprite_btn_label">Pick a sprite</string>
     <string name="select_animation_btn_label">Open animation</string>
+    <string name="animation_brightness_label">Brightness</string>
+    <string name="animation_palette_label">Palette</string>
+    <string name="animation_duration_label">Duration</string>
+    <string name="animation_duration_min_error">Duration must be at least 40 ms.</string>
+    <string name="animation_frame_index_label">Frame %1$d</string>
 
     <string name="animation_sprite_frame_index_label">Sprite frame:</string>
     <string name="animation_horizontal_offset_label">Horizontal offset:</string>

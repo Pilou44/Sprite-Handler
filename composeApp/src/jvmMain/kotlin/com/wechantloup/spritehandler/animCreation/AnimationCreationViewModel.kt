@@ -66,7 +66,9 @@ internal class AnimationCreationViewModel: ViewModel() {
             is SetSpriteFrameIntent -> setSpriteFrame(intent.animationIndex, intent.spriteFrameIndex)
             is PreviewIntent -> showPreview()
             is SetAnimationSizeIntent -> setAnimationSize(intent.width, intent.height)
-            is SetFramePalette -> setFramePalette(intent.frameIndex, intent.paletteIndex)
+            is SetFramePaletteIntent -> setFramePalette(intent.frameIndex, intent.paletteIndex)
+            is SetBrightnessIntent -> TODO()
+            is SetDurationIntent -> TODO()
         }
     }
 
@@ -164,7 +166,12 @@ internal class AnimationCreationViewModel: ViewModel() {
     private fun addAnimationFrame(index: Int) {
         val animation = stateFlow.value.animation
         val frames = animation.frames.toMutableList()
-        frames.add(index, Frame(0, 0, 0, 0))
+        frames.add(index, Frame(
+            spriteFrameIndex = 0,
+            offsetX = 0,
+            offsetY = 0,
+            paletteIndex = 0
+        ))
         val newAnimation = animation.copy(frames = frames)
         _stateFlow.value = stateFlow.value.copy(
             animation = newAnimation

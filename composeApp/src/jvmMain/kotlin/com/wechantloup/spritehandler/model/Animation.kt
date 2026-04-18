@@ -19,9 +19,12 @@ data class Animation(
         val offsetX: Int,
         val offsetY: Int,
         val paletteIndex: Int,
+        val durationMs: Int = 100,
+        val brightness: Float = 1f,
     ) {
         init {
             require(paletteIndex <= 255) { "Palette index must be 255 or less" }
+            require(durationMs >= 40) { "Duration must be 40ms or more" }
         }
     }
 }
