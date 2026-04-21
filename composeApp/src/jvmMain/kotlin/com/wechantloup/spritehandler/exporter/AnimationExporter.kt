@@ -105,6 +105,12 @@ internal object AnimationExporter {
 
             val brightnessByte = (frame.brightness * 255).roundToInt().toByte()
             bytes.add(brightnessByte)
+
+            val horizontalMirrorInt = if (frame.isHorizontallyMirrored) 1 else 0
+            bytes.add(horizontalMirrorInt.toByte())
+
+            val verticalMirrorInt = if (frame.isVerticallyMirrored) 1 else 0
+            bytes.add(verticalMirrorInt.toByte())
         }
         return bytes
     }

@@ -85,15 +85,17 @@ internal object AnimationImporter {
 
         val frames = mutableListOf<Animation.Frame>()
         for (i in 0 until frameCount) {
-            val spriteFrameIndex = bytes[index + i * 8].toInt() and 0xFF
-            val offsetXBytes = bytes.subList(index + 1 + i * 8, index + 3 + i * 8)
+            val spriteFrameIndex = bytes[index + i * 10].toInt() and 0xFF
+            val offsetXBytes = bytes.subList(index + 1 + i * 10, index + 3 + i * 10)
             val offsetX = offsetXBytes.toSignedInt()
-            val offsetYBytes = bytes.subList(index + 3 + i * 8, index + 5 + i * 8)
+            val offsetYBytes = bytes.subList(index + 3 + i * 10, index + 5 + i * 10)
             val offestY = offsetYBytes.toSignedInt()
-            val paletteIndex = bytes[index + 5 + i * 8].toInt() and 0xFF
-            val durationMs = bytes[index + 6 + i * 8].toInt() and 0xFF
-            val brightnessByte = bytes[index + 7 + i * 8]
+            val paletteIndex = bytes[index + 5 + i * 10].toInt() and 0xFF
+            val durationMs = bytes[index + 6 + i * 10].toInt() and 0xFF
+            val brightnessByte = bytes[index + 7 + i * 10]
             val brightness = ((brightnessByte.toInt() and 0xFF) / 255f * 100).roundToInt() / 100f
+            val isHorizontallyMirrored = bytes[index + 8 + i * 10].toInt() and 0xFF > 0
+            val isVerticallyMirrored = bytes[index + 9 + i * 10].toInt() and 0xFF > 0
             val frame = Animation.Frame(
                 spriteFrameIndex = spriteFrameIndex,
                 offsetX = offsetX,
@@ -101,8 +103,8 @@ internal object AnimationImporter {
                 paletteIndex = paletteIndex,
                 durationMs = durationMs,
                 brightness = brightness,
-                isHorizontallyMirrored = false, // ToDo
-                isVerticallyMirrored = false, // ToDo
+                isHorizontallyMirrored = isHorizontallyMirrored,
+                isVerticallyMirrored = isVerticallyMirrored,
             )
             frames.add(frame)
         }

@@ -69,9 +69,39 @@ internal class AnimationCreationViewModel: ViewModel() {
             is SetPaletteIntent -> setFramePalette(intent.frameIndex, intent.paletteIndex)
             is SetBrightnessIntent -> setFrameBrightness(intent.frameIndex, intent.brightness)
             is SetDurationIntent -> setFrameDuration(intent.frameIndex, intent.durationMs)
-            is SetHorizontallyMirroredIntent -> TODO()
-            is SetVerticallyMirroredIntent -> TODO()
+            is SetHorizontallyMirroredIntent -> setHorizontallyMirrored(intent.frameIndex, intent.value)
+            is SetVerticallyMirroredIntent -> setVerticallyMirrored(intent.frameIndex, intent.value)
         }
+    }
+
+    private fun setHorizontallyMirrored(
+        frameIndex: Int,
+        value: Boolean,
+    ) {
+        val animation = stateFlow.value.animation
+        val frames = animation.frames.toMutableList()
+        val frame = frames.removeAt(frameIndex)
+        val newFrame = frame.copy(isHorizontallyMirrored = value)
+        frames.add(frameIndex, newFrame)
+        val newAnimation = animation.copy(frames = frames)
+        _stateFlow.value = stateFlow.value.copy(
+            animation = newAnimation,
+        )
+    }
+
+    private fun setVerticallyMirrored(
+        frameIndex: Int,
+        value: Boolean,
+    ) {
+        val animation = stateFlow.value.animation
+        val frames = animation.frames.toMutableList()
+        val frame = frames.removeAt(frameIndex)
+        val newFrame = frame.copy(isVerticallyMirrored = value)
+        frames.add(frameIndex, newFrame)
+        val newAnimation = animation.copy(frames = frames)
+        _stateFlow.value = stateFlow.value.copy(
+            animation = newAnimation,
+        )
     }
 
     private fun setFrameBrightness(

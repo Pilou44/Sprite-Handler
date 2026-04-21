@@ -17,6 +17,8 @@ class AnimationImporterTest {
                 paletteIndex = 0,
                 durationMs = 100,
                 brightness = 1f,
+                isHorizontallyMirrored = false,
+                isVerticallyMirrored = false,
             )
         }
         val frame2 = Random(seed = 27).let { r ->
@@ -27,6 +29,8 @@ class AnimationImporterTest {
                 paletteIndex = 0,
                 durationMs = 100,
                 brightness = 1f,
+                isHorizontallyMirrored = false,
+                isVerticallyMirrored = false,
             )
         }
         val frame3 = Random(seed = 13).let { r ->
@@ -37,6 +41,8 @@ class AnimationImporterTest {
                 paletteIndex = 0,
                 durationMs = 100,
                 brightness = 1f,
+                isHorizontallyMirrored = false,
+                isVerticallyMirrored = false,
             )
         }
         val sourceFrames = listOf(frame1, frame2, frame3)
@@ -59,6 +65,8 @@ class AnimationImporterTest {
                 paletteIndex = 0,
                 durationMs = 100,
                 brightness = 1f,
+                isHorizontallyMirrored = false,
+                isVerticallyMirrored = false,
             )
         }
         val frame2 = Random(seed = 27).let { r ->
@@ -69,6 +77,8 @@ class AnimationImporterTest {
                 paletteIndex = 1,
                 durationMs = 100,
                 brightness = 1f,
+                isHorizontallyMirrored = false,
+                isVerticallyMirrored = false,
             )
         }
         val frame3 = Random(seed = 13).let { r ->
@@ -79,6 +89,8 @@ class AnimationImporterTest {
                 paletteIndex = 0,
                 durationMs = 100,
                 brightness = 1f,
+                isHorizontallyMirrored = false,
+                isVerticallyMirrored = false,
             )
         }
         val sourceFrames = listOf(frame1, frame2, frame3)
@@ -101,6 +113,8 @@ class AnimationImporterTest {
                 paletteIndex = 0,
                 durationMs = 100,
                 brightness = 1f,
+                isHorizontallyMirrored = true,
+                isVerticallyMirrored = true,
             )
         }
         val frame2 = Random(seed = 27).let { r ->
@@ -111,6 +125,8 @@ class AnimationImporterTest {
                 paletteIndex = 1,
                 durationMs = 50,
                 brightness = 0.75f,
+                isHorizontallyMirrored = false,
+                isVerticallyMirrored = false,
             )
         }
         val frame3 = Random(seed = 13).let { r ->
@@ -121,6 +137,8 @@ class AnimationImporterTest {
                 paletteIndex = 0,
                 durationMs = 200,
                 brightness = 0.5f,
+                isHorizontallyMirrored = true,
+                isVerticallyMirrored = false,
             )
         }
         val sourceFrames = listOf(frame1, frame2, frame3)

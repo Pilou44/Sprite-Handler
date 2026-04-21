@@ -29,7 +29,17 @@ internal fun AnimationFrame(
     diffuserStrength: Float = 0.5f,
 ) {
     val spriteFrame = sprite.frames[frame.spriteFrameIndex]
-    val pixels = remember(spriteFrame, sprite.width, sprite.height, animWidth, animHeight, frame.offsetX, frame.offsetY) {
+    val pixels = remember(
+        spriteFrame,
+        sprite.width,
+        sprite.height,
+        animWidth,
+        animHeight,
+        frame.offsetX,
+        frame.offsetY,
+        frame.isHorizontallyMirrored,
+        frame.isVerticallyMirrored,
+    ) {
         applyOffset(
             frame = spriteFrame,
             spriteWidth = sprite.width,
@@ -38,6 +48,8 @@ internal fun AnimationFrame(
             animHeight = animHeight,
             offsetX = frame.offsetX,
             offsetY = frame.offsetY,
+            isHorizontallyMirrored = frame.isHorizontallyMirrored,
+            isVerticallyMirrored = frame.isVerticallyMirrored,
         )
     }
     val palette = remember(frame.paletteIndex, frame.brightness) {
@@ -145,6 +157,8 @@ private fun applyOffset(
     animHeight: Int,
     offsetX: Int,
     offsetY: Int,
+    isHorizontallyMirrored: Boolean,
+    isVerticallyMirrored: Boolean,
 ): List<Int> {
     // Ancre bas-gauche : bas du sprite aligné sur le bas de la canvas d'animation,
     // gauche alignée sur la gauche. Aucune ambiguïté odd/even.
@@ -152,8 +166,10 @@ private fun applyOffset(
     return List(animWidth * animHeight) { index ->
         val destX = index % animWidth
         val destY = index / animWidth
-        val srcX = destX - offsetX
-        val srcY = destY + baseY - offsetY
+        var srcX = destX - offsetX
+        var srcY = destY + baseY - offsetY
+        if (isHorizontallyMirrored) srcX = spriteWidth - 1 - srcX
+        if (isVerticallyMirrored) srcY = spriteHeight - 1 - srcY
         if (srcX in 0 until spriteWidth && srcY in 0 until spriteHeight) {
             frame[srcY * spriteWidth + srcX]
         } else {
