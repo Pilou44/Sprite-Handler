@@ -69,6 +69,8 @@ internal class AnimationCreationViewModel: ViewModel() {
             is SetPaletteIntent -> setFramePalette(intent.frameIndex, intent.paletteIndex)
             is SetBrightnessIntent -> setFrameBrightness(intent.frameIndex, intent.brightness)
             is SetDurationIntent -> setFrameDuration(intent.frameIndex, intent.durationMs)
+            is SetHorizontallyMirroredIntent -> TODO()
+            is SetVerticallyMirroredIntent -> TODO()
         }
     }
 
@@ -203,6 +205,8 @@ internal class AnimationCreationViewModel: ViewModel() {
             paletteIndex = 0,
             durationMs = 100,
             brightness = 1f,
+            isHorizontallyMirrored = false,
+            isVerticallyMirrored = false,
         ))
         val newAnimation = animation.copy(frames = frames)
         _stateFlow.value = stateFlow.value.copy(

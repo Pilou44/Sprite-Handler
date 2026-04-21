@@ -14,3 +14,5 @@ data class SetAnimationSizeIntent(val width: Int? = null, val height: Int? = nul
 data class SetPaletteIntent(val frameIndex: Int, val paletteIndex: Int): AnimationCreationIntent
 data class SetDurationIntent(val frameIndex: Int, val durationMs: Int): AnimationCreationIntent
 data class SetBrightnessIntent(val frameIndex: Int, val brightness: Float): AnimationCreationIntent
+data class SetHorizontallyMirroredIntent(val frameIndex: Int, val value: Boolean): AnimationCreationIntent
+data class SetVerticallyMirroredIntent(val frameIndex: Int, val value: Boolean): AnimationCreationIntent

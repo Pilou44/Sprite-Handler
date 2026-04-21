@@ -21,6 +21,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
@@ -70,6 +71,8 @@ import spritehandler.composeapp.generated.resources.animation_duration_label
 import spritehandler.composeapp.generated.resources.animation_duration_min_error
 import spritehandler.composeapp.generated.resources.animation_frame_index_label
 import spritehandler.composeapp.generated.resources.animation_horizontal_offset_label
+import spritehandler.composeapp.generated.resources.animation_mirror_horizontally_label
+import spritehandler.composeapp.generated.resources.animation_mirror_vertically_label
 import spritehandler.composeapp.generated.resources.animation_palette_label
 import spritehandler.composeapp.generated.resources.animation_sprite_frame_index_label
 import spritehandler.composeapp.generated.resources.animation_vertical_offset_label
@@ -241,7 +244,6 @@ private fun AnimationFrameEditor(
             modifier = Modifier.padding(12.dp),
         ) {
             // Colonne gauche : aperçu pixel
-            // ↓ Appel de TON composable existant (renderer pixel), pas récursif
             AnimationFrame(
                 frame = frame,
                 sprite = sprite,
@@ -293,6 +295,23 @@ private fun AnimationFrameEditor(
                         value = frame.offsetY,
                         onDecrement = { sendIntent(SetVerticalOffsetIntent(index, -1)) },
                         onIncrement = { sendIntent(SetVerticalOffsetIntent(index, 1)) },
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+
+                HorizontalDivider()
+
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    CheckboxWithText(
+                        label = stringResource(Res.string.animation_mirror_horizontally_label),
+                        isChecked = frame.isHorizontallyMirrored,
+                        onCheckedChange = { value -> sendIntent(SetHorizontallyMirroredIntent(index, value)) },
+                        modifier = Modifier.weight(1f),
+                    )
+                    CheckboxWithText(
+                        label = stringResource(Res.string.animation_mirror_vertically_label),
+                        isChecked = frame.isVerticallyMirrored,
+                        onCheckedChange = { value -> sendIntent(SetVerticallyMirroredIntent(index, value)) },
                         modifier = Modifier.weight(1f),
                     )
                 }
@@ -571,6 +590,31 @@ private fun OffsetControl(
             label = value.toString(),
             onDecrement = onDecrement,
             onIncrement = onIncrement,
+        )
+    }
+}
+
+@Composable
+private fun CheckboxWithText(
+    label: String,
+    isChecked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        modifier = modifier,
+    ) {
+        Checkbox(
+            checked = isChecked,
+            onCheckedChange = onCheckedChange,
+        )
+        Text(
+            text = label,
+            textAlign = TextAlign.Left,
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.weight(1f),
         )
     }
 }

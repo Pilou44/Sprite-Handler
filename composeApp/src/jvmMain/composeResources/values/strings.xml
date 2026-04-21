@@ -44,4 +44,6 @@
     <string name="animation_sprite_frame_index_label">Sprite frame:</string>
     <string name="animation_horizontal_offset_label">Horizontal offset:</string>
     <string name="animation_vertical_offset_label">Vertical offset:</string>
+    <string name="animation_mirror_horizontally_label">Mirror horizontally</string>
+    <string name="animation_mirror_vertically_label">Mirror vertically</string>
 </resources>

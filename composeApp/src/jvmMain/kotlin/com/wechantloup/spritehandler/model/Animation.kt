@@ -21,6 +21,8 @@ data class Animation(
         val paletteIndex: Int,
         val durationMs: Int,
         val brightness: Float,
+        val isHorizontallyMirrored: Boolean,
+        val isVerticallyMirrored: Boolean,
     ) {
         init {
             require(paletteIndex <= 255) { "Palette index must be 255 or less" }

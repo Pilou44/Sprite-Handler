@@ -36,6 +36,8 @@ internal object AnimationImporter {
                 paletteIndex = 0,
                 durationMs = 100,
                 brightness = 1f,
+                isHorizontallyMirrored = false,
+                isVerticallyMirrored = false,
             )
             frames.add(frame)
         }
@@ -65,6 +67,8 @@ internal object AnimationImporter {
                 paletteIndex = paletteIndex,
                 durationMs = 100,
                 brightness = 1f,
+                isHorizontallyMirrored = false,
+                isVerticallyMirrored = false,
             )
             frames.add(frame)
         }
@@ -97,6 +101,8 @@ internal object AnimationImporter {
                 paletteIndex = paletteIndex,
                 durationMs = durationMs,
                 brightness = brightness,
+                isHorizontallyMirrored = false, // ToDo
+                isVerticallyMirrored = false, // ToDo
             )
             frames.add(frame)
         }
